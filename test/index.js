@@ -1,5 +1,5 @@
 const path = require('path')
-const { Multichainer, Smartcontract, Account } = require('../src/index.js');
+const { Multichainer, Smartcontract, Account, Contract } = require('../src/index.js');
 
 // Default parameters to test
 const blockchain = 'ethereum';
@@ -30,6 +30,20 @@ console.log("Contract Deployer: "+deployer.address);
 // -------------------------------------------
 const loomProvider = mc.getProvider();
 
+
+// --------------------------------------------
+// 4. Load Smartcontract
+// --------------------------------------------
+const walletless = Contract.fromAbiFile(walletlessAddress, walletlessAbiPath, loomProvider);
+console.log("Walletless contract instantiniated");
+
+
+// --------------------------------------------
+// 5. Get Contract information: for example player id
+// --------------------------------------------
+
+
+// const smartcontract = new Smartcontract();
 
 // todo remove when scripts will be turned into async methods
 process.exit(0);

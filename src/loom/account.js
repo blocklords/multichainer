@@ -17,6 +17,7 @@ Account.fromPrivateKeyFile = function(keyPath) {
     var keyString = undefined;
 
     try {
+        // TODO turn into async
         keyString = readFileSync(keyPath, 'utf-8').toString().trim();
     }
     catch (e) {
