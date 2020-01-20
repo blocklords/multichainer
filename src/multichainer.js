@@ -16,7 +16,7 @@ const SIDECHAINS = {
 };
 
 // Version of the library
-const VERSION = 'V.0.0.1';
+const VERSION = 'V.0.0.2';
 
 
 var Multichainer = function (blockchain, network, sidechain = undefined) {
