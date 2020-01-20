@@ -14,5 +14,9 @@
     "Blockchain"
   ],
   "author": "Arctic Seascape",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "loom-js": "^1.55.0",
+    "web3": "^1.2.5-rc.0"
+  }
 }

@@ -10,6 +10,7 @@ let Smartcontract = require('./smartcontract.js');
 module.exports.Multichainer = Multichainer;
 module.exports.Contract = Contract;
 module.exports.AddressMapper = AddressMapper;
+module.exports.Account = Account;
 module.exports.Gateway = Gateway;
 module.exports.Utils = Utils;
 module.exports.Smartcontract = Smartcontract;
