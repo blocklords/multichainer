@@ -1,3 +1,6 @@
+const { Provider: LoomProvider } = require('./loom/index.js');
+const loomProvider = new LoomProvider();
+
 // supported blockchain, network and sidechains
 const BLOCKCHAINS = {
     'ethereum'  : 'ethereum',
@@ -16,7 +19,7 @@ const SIDECHAINS = {
 };
 
 // Version of the library
-const VERSION = '0.0.3';
+const VERSION = '0.0.4';
 
 
 var Multichainer = function (blockchain, network, sidechain = undefined) {
@@ -52,74 +55,18 @@ var Multichainer = function (blockchain, network, sidechain = undefined) {
 // Static reference of Multichain
 Multichainer.instance = undefined;
 
+// Get provider
+Multichainer.prototype.getProvider = function() {
+    if (Multichainer.instance === undefined) {
+        throw "Multichainer is undefined";
+    }
 
-Multichainer.prototype.init = function(loomParams, ethParams) {
-            this.loomParams = loomParams;
-            this.ethParams = ethParams;
+    // Loom?
+    if (Multichainer.instance.blockchain == BLOCKCHAINS.ethereum && Multichainer.instance.sidechain == SIDECHAINS.loom) {
+        return loomProvider.getProvider(Multichainer.instance.network);
+    }
 
-            let promise = new Promise(function(resolve, reject) {
-
-                this.loomWeb3 = this.getProvider(loomParams, ethParams);
-
-                this.Contract.init(loomParams, ethParams, this.loomWeb3).then(function(contracts) {
-                
-                    this.AddressMapper.init(loomParams, ethParams).then(function(addressMapper) {
-
-                        this.contracts = contracts;
-                        this.addressMapper = addressMapper;
-
-                        this.loomParams.gatewayAddress = Utils.addressTypeToHex(contracts.loomGatewayContract.address);
-                        this.loomParams.gatewayContract = contracts.loomGatewayContract;
-                        this.loomParams.checkInContract = contracts.checkInContract;
-                        this.loomParams.heroToken = contracts.loomHeroToken;
-                        this.loomParams.itemContract = contracts.loomItemContract;
-
-                        this.ethParams.gatewayContract = contracts.gatewayContract;
-                        this.ethParams.gatewayAddress = contracts.gatewayContract.contract.address;
-                        this.ethParams.heroToken = contracts.heroToken;
-
-                        this.Item.init (this.loomParams);
-
-                        resolve(this);
-
-                    }.bind(this)).catch(errorAddressMapper => {
-                        cc.error(errorAddressMapper);
-                        reject(errorAddressMapper);
-                    })
-                
-                }.bind(this)).catch(errorContract => {
-                    cc.error(errorContract);
-                    reject(errorContract);
-                })
-            }.bind(this));
-            
-            return promise;
+    return undefined;
 };
-
-Multichainer.prototype.getProvider = function(loomParams, ethParams) {
-            const ethAccount = Utils.generateAccount(ethParams);
-
-            const { privateKey, publicKey } = Utils.generateKeyPair();
-
-            const client = Utils.generateClient(loomParams);
-
-            client.txMiddleware = [
-                new loom.NonceTxMiddleware(publicKey, client),
-                new loom.SignedTxMiddleware(privateKey)
-            ];
-
-            const ethersProvider = new ethers.providers.Web3Provider( ethParams.currentProvider );
-            const signer = ethersProvider.getSigner();
-
-            let loomProvider = new loom.LoomProvider(client, privateKey)
-            loomProvider.callerChainId = ethParams.chainId;
-            loomProvider.setMiddlewaresForAddress(ethAccount.local.toString(), [
-                new loom.NonceTxMiddleware(ethAccount, client),
-                new loom.SignedEthTxMiddleware(signer)
-            ]);
-
-            // this.web3 = new Web3(loomProvider);
-            return new Web3(loomProvider);
-        };
 
 module.exports = Multichainer;
