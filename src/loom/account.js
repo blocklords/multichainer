@@ -1,3 +1,4 @@
+const Utils = require('./cryptoutils.js');
 const { readFileSync } = require('fs');
 const loom = require('loom-js');
 

@@ -1,5 +1,5 @@
 const path = require('path')
-const { Multichainer, Smartcontract, Account, Contract } = require('../src/index.js');
+const { Multichainer, Smartcontract, Account, Contract, Utils } = require('../src/index.js');
 
 // Default parameters to test
 const blockchain = 'ethereum';
@@ -44,9 +44,21 @@ console.log("Walletless contract address: "+walletless.address)
 // --------------------------------------------
 // 5. Get Contract information: for example player id
 // --------------------------------------------
+const walletlessInteractor = new Smartcontract(walletless, account);
 
-
-// const smartcontract = new Smartcontract();
+// Get Email of the Account
+let result = walletlessInteractor.call('GetID', account.address.toString());
+result.then(x => {
+	if (x == false) {
+		console.log('No ID found');
+	}
+	else {
+		console.log('ID: '+x);
+	}
+})
+.catch(e => {
+	console.trace(e);
+})
 
 // todo remove when scripts will be turned into async methods
-process.exit(0);
+// process.exit(0);

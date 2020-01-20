@@ -1,4 +1,5 @@
 const Multichainer = require('./multichainer.js');
+const { Account: LoomAccount } = require ('./loom/index.js');
 
 var Account = function(address, accountType) {
     this.address = address.toString();
@@ -14,6 +15,7 @@ Account.prototype.setKeyPair = function(privateKey, publicKey) {
     this.privateKey = privateKey;
     this.publicKey = publicKey;
 };
+
 
 Account.validateAccountType = function(type) {
     if (Account.TYPE[type] === undefined) {
@@ -31,7 +33,6 @@ Account.fromPrivateKeyFile = function(path, accountType) {
 
     // todo validate path
     if (accountType === Account.TYPE.LOOM) {
-        const { Account: LoomAccount } = require ('./loom/index.js');
 
         let loomAccount = LoomAccount.fromPrivateKeyFile(path);
 

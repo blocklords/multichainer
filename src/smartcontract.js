@@ -1,69 +1,34 @@
 const Utils = require('./cryptoutils');
 const Multichainer = require('./multichainer.js');
+const { Smartcontract: LoomSmartcontract } = require('./loom/index.js');
 
-/**
- *  Smartcontract module is used to interact with Smartcontract methods and properties
- *
- */
-var Smartcontract =  function (blockchain, network, sidechain = undefined) {
-    this.main = new Multichainer(blockchain, network, sidechain);
+var Smartcontract = function(instance, account) {
+    if (Multichainer.instance === undefined) {
+        throw "Multichainer not instantiniated";
+    }
 
-    this.waitItemAppearance = function(itemId, timeOut) {     // @param addr - loom chain address mapped to ethereum account
-            if ( timeOut === undefined ) {
-                timeOut = 180;  // 3 mins
-            }
+    if (Multichainer.instance.blockchain == 'ethereum' && Multichainer.instance.sidechain == 'loom') {
+        this.instance = new LoomSmartcontract(instance, account);
 
-            let counter = 0;
+        return this;
+    }
+};
 
-            
-            let _this = this;
 
-            var p = new Promise(function(resolve, reject){
-                if (_this.timer != undefined) {
-                    reject(false);
-                }
-                _this.timer = setInterval(function() {
-                    var onResponse = function(err, isExist) {
-                        if (err) {
-                            console.error(err);
-                            reject(err);
-                        }
-                        else {
-                            if (!isExist) {
-                                if (counter >= timeOut) {
-                                    clearInterval(_this.timer);
-                                    _this.timer = undefined;
-                                    cc.log("Timeout while waiting for checking for item existence");
-                                    reject(false);
-                                }
-                                else {
-                                    cc.log("Item doesn't exists yet, "+counter+"/"+timeOut);
-                                    counter++;
-                                }
-                            }
-                            else {
-                                console.log("Item exists");
-                                clearInterval(_this.timer);
-                                _this.timer = undefined;
-                                resolve(true);
-                            }
-                        }
+// Get some data from the Blockchain
+Smartcontract.prototype.call = function () {
+    if (this.instance === undefined) {
+        throw "Smartcontract not instantiniated";
+    }
 
-                    };
+    if (arguments.length == 0) {
+        throw "Calling function name was not given";
+    }
 
-                    if (_this.contract == undefined) {
-                        clearInterval(_this.timer);
-                        _this.timer = undefined;
-                        reject("Item contract has is not initialized in Item Contract Interactor");
-                    }
-                    this.contract.isItemExist(itemId, onResponse);
-                }.bind(this), 1000);
-            }.bind(this));
+    // turn to real array
+    let args = Array.from(arguments);
 
-            return p;
-    };
-
-    return this;
-}
+    return this.instance.call(args);
+};
 
 module.exports = Smartcontract;
