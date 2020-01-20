@@ -1,31 +1,26 @@
-const Utils = require('./cryptoutils');
-const loom = require('loom-js');
 const fs = require('fs');
+const loom = require('loom-js');
+const Multichainer = require('./multichainer.js');
+const Utils = require('./cryptoutils');
+const { Contract: LoomContract } = require('./loom/index.js');
 
 // To create a contract
-var Contract = function() {};
+var Contract = function(address, instance) {
+    this.address = address;
+    this.instance = instance;
+};
 
 // @param   string      path - ABI file path
-Contract.fromAbiFile = function(contractAddress, path, provider) {
-    var mod = this;
-
-    let data = undefined;
-
-    // TODO turn into async
-    try {
-        let rawdata = fs.readFileSync(path);
-        data = JSON.parse(rawdata);
-    }
-    catch (e) {
-        throw e;
+Contract.fromAbiFile = function(address, path, provider) {
+    if (Multichainer.instance === undefined) {
+        throw "Multichainer not instantiniated";
     }
 
-    // if (web3.version.getNetwork !== undefined) {
-        // resolve(loomWeb3.eth.contract(data.json.abi).at(contractAddress));
-    // }
-    // else {
-    return new provider.eth.Contract(data.abi, contractAddress);
-    // }
+    if (Multichainer.instance.blockchain == 'ethereum' && Multichainer.instance.sidechain == 'loom') {
+        let loomInstance = LoomContract.fromAbiFile(address, path, provider);
+
+        return new Contract(address, loomInstance);
+    }
 };
     
     // let gatewayAddress = cc.zz.LoginData.getCurrentBlockchainNetworkData().gateway;

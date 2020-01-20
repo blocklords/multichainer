@@ -39,8 +39,7 @@ const loomProvider = mc.getProvider();
 // 4. Load Smartcontract
 // --------------------------------------------
 const walletless = Contract.fromAbiFile(walletlessAddress, walletlessAbiPath, loomProvider);
-console.log("Walletless contract instantiniated");
-
+console.log("Walletless contract address: "+walletless.address)
 
 // --------------------------------------------
 // 5. Get Contract information: for example player id
