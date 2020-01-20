@@ -31,4 +31,18 @@ Account.fromPrivateKeyFile = function(keyPath) {
     return Account(address, privateKey, publicKey);
 };
 
+
+/**
+ * Creates an account of a given type from a privatekey
+ *
+ */
+Account.getRandom = function() {
+    let privateKey = loom.CryptoUtils.generatePrivateKey()
+
+    const publicKey = loom.CryptoUtils.publicKeyFromPrivateKey(privateKey);
+
+    const address = loom.LocalAddress.fromPublicKey(publicKey);
+    return Account(address, privateKey, publicKey);
+};
+
 module.exports = Account;

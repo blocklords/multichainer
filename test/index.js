@@ -25,6 +25,10 @@ console.log("Multichainer Version: "+mc.version);
 const deployer = Account.fromPrivateKeyFile(deployerPrivateKeyPath, Account.TYPE.LOOM);
 console.log("Contract Deployer: "+deployer.address);
 
+const account = Account.getRandom(Account.TYPE.LOOM);
+console.log("Random Account: "+account.address);
+
+
 // -------------------------------------------
 // 3. Node connection. Loom provider
 // -------------------------------------------
