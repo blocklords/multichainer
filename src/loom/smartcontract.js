@@ -16,11 +16,15 @@ Smartcontract.prototype.call = function (arguments) {
 
     // TODO change the function to invoke methods directly from the top smartcontract module
    	if (method === undefined) {
-   		throw "Unsupported contract name "+name;
+   		console.trace("Unsupported method name "+name);
+      process.exit(1);
    	}
 
    	let parameters = arguments.slice(1);
-   	return method(...parameters).call({ from: this.account.address.toString() });
+    if (parameters.length > 0) {
+      return method(...parameters).call({ from: this.account.address.toString() });
+   	}
+    return method().call({ from: this.account.address.toString() });
 };
 
 module.exports = Smartcontract;

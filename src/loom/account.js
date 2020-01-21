@@ -46,4 +46,5 @@ Account.getRandom = function() {
     return Account(address, privateKey, publicKey);
 };
 
+
 module.exports = Account;
