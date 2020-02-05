@@ -1,12 +1,17 @@
 const path = require('path')
 const { Multichainer, Smartcontract, Account, Contract, Utils } = require('../src/index.js');
-const { Eth } = require('web3');
+const ethUtil = require('ethereumjs-util');
+const ethAbi = require('ethereumjs-abi');
+var Web3 = require('web3');
+var web3 = new Web3(Web3.givenProvider || "ws://localhost:8546");
+const loom = require('loom-js');
 
 // Default parameters to test
 const blockchain = 'ethereum';
 const network = 'privatenet';
 const sidechain = 'loom';
-const deployerPrivateKeyPath = path.join(__dirname, '../private/extdev_private_key');
+const deployerPrivateKeyPath = path.join(__dirname, '../private/deployer_private_key');
+const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key');
 
 // LOOM testnet address of Walletless.sol contract
 const walletlessAddress = '0x4D451Bb0492D3099f5D65c244a4a6534cb9e6DB1';		
@@ -33,7 +38,7 @@ console.log("Random Account: "+account.address);
 // -------------------------------------------
 // 3. Node connection. Loom provider
 // -------------------------------------------
-const loomProvider = mc.getProvider();
+const loomProvider = mc.getProvider(account);
 
 
 // --------------------------------------------

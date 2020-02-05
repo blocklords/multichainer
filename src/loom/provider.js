@@ -28,20 +28,29 @@ const CONFIG = {
 // This is default version returning only for sidechain
 //
 // @param account - Multichainer/Account loom account
-Provider.prototype.getProvider = function(network, account = false) {
+Provider.prototype.getProvider = function(network, account = undefined) {
     if (CONFIG[network] === undefined) {
         throw "Unsupported Loom network type: "+network;
     }
 
     const {writeUrl, readUrl, networkId} = CONFIG[network];
 
-    let privateKey = loom.CryptoUtils.generatePrivateKey()
-
     let client = new loom.Client(networkId, writeUrl, readUrl)
 
-    let web3 = new Web3(new loom.LoomProvider(client, privateKey))
+    if (account === undefined) {
+        let privateKey = loom.CryptoUtils.generatePrivateKey()
 
-    return web3;
+        return new Web3(new loom.LoomProvider(client, privateKey))
+    }
+    else
+    {
+        client.txMiddleware = [
+            new loom.NonceTxMiddleware(account.publicKey, client),
+            new loom.SignedTxMiddleware(account.privateKey)
+        ];
+
+        return new Web3(new loom.LoomProvider(client, account.privateKey))
+    }
 };
 
 // Provider.prototype.getProvider = function(loomParams, ethParams) {
