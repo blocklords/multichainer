@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x1553B765656537eB2DC079cE95e31dB08235a927';	
+walletlessAddress = '0x02EbB3E0828146D170D31Ec692775764cc6B4041';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
