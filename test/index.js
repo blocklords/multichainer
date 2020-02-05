@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0xD1a5D66C749EA7bF61fDDB1d75f623C36321BBC0';	
+walletlessAddress = '0x05e0A228A99DC5fce83c0a6766D9Cc5A385E11CD';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -216,8 +216,8 @@ let DIGEST = ethAbi.soliditySHA3(
 	digestValues
 );
 
-var digestAbi 				= ethAbi.rawEncode(digestTypes, digestValues);
-let DIGEST_2 				= ethUtil.bufferToHex(ethUtil.keccak256(digestAbi));
+// var digestAbi 				= ethAbi.rawEncode(digestTypes, digestValues);
+// let DIGEST_2 				= ethUtil.bufferToHex(ethUtil.keccak256(digestAbi));
 
 
 console.log("\n");
@@ -251,7 +251,7 @@ console.log('')
 
 console.log('   Digest (Prefix, Domain Separator, Temporary Message');
 console.log('   Digest  Hash:            '+ethUtil.bufferToHex(DIGEST));
-console.log('   Digest2 Hash:            '+DIGEST_2);
+// console.log('   Digest2 Hash:            '+DIGEST_2);
 console.log('')
 
 // let signingKey = loom.CryptoUtils.bytesToHex(account.privateKey);
