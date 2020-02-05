@@ -5,6 +5,7 @@ const ethAbi = require('ethereumjs-abi');
 var Web3 = require('web3');
 var web3 = new Web3(Web3.givenProvider || "ws://localhost:8546");
 const loom = require('loom-js');
+const nacl = require('tweetnacl');
 
 // Default parameters to test
 const blockchain = 'ethereum';
@@ -14,7 +15,7 @@ const deployerPrivateKeyPath = path.join(__dirname, '../private/deployer_private
 const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key');
 
 // LOOM testnet address of Walletless.sol contract
-const walletlessAddress = '0x4D451Bb0492D3099f5D65c244a4a6534cb9e6DB1';		
+const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';		
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -22,17 +23,31 @@ const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');
 // 1. Load the Multichainer. Always has to be instantiniated first
 // -------------------------------------------
 const mc = new Multichainer(blockchain, network, sidechain);
-console.log("Multichainer Version: "+mc.version);
+
+console.log("\n");
+console.log("******************************************************************");
+console.log("1. Load the Multichainer. Always has to be instantiniated first");
+console.log("******************************************************************\n");
+console.log("   Loaded successfully. Multichainer Version: "+mc.version);
 
 
 // --------------------------------------------
 // 2. Account that will interact with Blockchain
 // --------------------------------------------
-const deployer = Account.fromPrivateKeyFile(deployerPrivateKeyPath, Account.TYPE.LOOM);
-console.log("Contract Deployer: "+deployer.address);
 
-const account = Account.getRandom(Account.TYPE.LOOM);
-console.log("Random Account: "+account.address);
+console.log("\n");
+console.log("**********************************************");
+console.log("2. Account that will interact with Blockchain");
+console.log("**********************************************\n");
+
+const deployer = Account.fromPrivateKeyFile(deployerPrivateKeyPath, Account.TYPE.LOOM);
+console.log("   Contract Deployer: "+deployer.address);
+
+// const account = Account.getRandom(Account.TYPE.LOOM);
+// console.log("   Random Account: "+account.address);
+
+const account = Account.fromPrivateKeyFile(samplePrivateKeyPath, Account.TYPE.LOOM);
+console.log("   Sample account: "+account.address);
 
 
 // -------------------------------------------
@@ -45,7 +60,7 @@ const loomProvider = mc.getProvider(account);
 // 4. Load Smartcontract
 // --------------------------------------------
 const walletless = Contract.fromAbiFile(walletlessAddress, walletlessAbiPath, loomProvider);
-console.log("Walletless contract address: "+walletless.address)
+// console.log("\nWalletless contract address: "+walletless.address)
 
 // --------------------------------------------
 // 5. Get Contract information: for example player id
@@ -53,60 +68,260 @@ console.log("Walletless contract address: "+walletless.address)
 const walletlessInteractor = new Smartcontract(walletless, account);
 
 console.log('\n\n');
-console.log('--------------------------');
-console.log('  Returning ID of a walletless account from blockchain')
-console.log('--------------------------\n');
+console.log("*********************************************************");
+console.log(' 5. E.g. Return ID of a walletless account from blockchain')
+console.log("*********************************************************\n");
+
+console.log("    Walletless contract address: "+walletless.address)
 
 // Get Email of the Account
-// let result = walletlessInteractor.call('GetID', account.address.toString());
-// result.then(x => {
-// 	if (x == false) {
-// 		console.log('No ID found');
-// 	}
-// 	else {
-// 		console.log('ID: '+x);
-// 	}
-// })
-// .catch(e => {
-// 	console.trace(e);
-// })
+let result = walletlessInteractor.call('GetID', account.address.toString());
+result.then(x => {
+	if (x == false) {
+		console.log('No ID found');
+	}
+	else {
+		console.log('ID: '+x);
+	}
+})
+.catch(e => {
+	console.trace(e);
+})
 
 
 // --------------------------------------------
 // 6. Offline sign transactions
 // --------------------------------------------
-let loom = require('loom-js');
+// let loom = require('loom-js');
 
-let message = 'Sample Message';
-messageHex = Buffer.from(message, 'utf8').toString('hex');
-messageBytes = loom.CryptoUtils.hexToBytes(messageHex);
+// let message = 'Sample Message';
+// messageHex = Buffer.from(message, 'utf8').toString('hex');
+// messageBytes = loom.CryptoUtils.hexToBytes(messageHex);
 
-console.log(loom.CryptoUtils.sign(messageBytes, deployer.privateKey));
+// console.log(loom.CryptoUtils.sign(messageBytes, deployer.privateKey));
+
+
+/* Matching with the Log Hash */
+
+/* 1. EIP-712 title: keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")  */
+let EIP_712_DOMAIN_PROTOTYPE 	= "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)";
+let EIP_712_DOMAIN_TYPE 		= ethUtil.bufferToHex(ethUtil.keccak256(EIP_712_DOMAIN_PROTOTYPE));
+
+
+/*------------------------------------*/
+/* DOMAIN SEPARATOR */
+/*------------------------------------*/
+
+/* 2. Name of the function keccak256('"Update Primary Address"') */
+let UPDATING_PRIMARY_NAME 		= "Update Primary Address";
+let UPDATING_PRIMARY_NAME_HASH 	= ethUtil.bufferToHex(ethUtil.keccak256(UPDATING_PRIMARY_NAME));
+
+/* 3. Version: keccak256('1') */
+let VERSION 					= '0x1';
+var VERSION_HASH 				= ethUtil.bufferToHex(ethUtil.keccak256(VERSION));
+
+/* 4. */
+var chainId = 1;
+
+/* 5. */
+var contractAddress = walletlessAddress;
+
+/* Define Domain Separator */
+let EIP_712_DOMAIN_SCHEME = [
+	'bytes32',
+    'bytes32',
+    'bytes32',
+    'uint256',
+    'address',
+];
+
+let separatorValues = [
+	EIP_712_DOMAIN_TYPE, 
+	UPDATING_PRIMARY_NAME_HASH, 
+	VERSION_HASH, 
+	chainId, 
+	contractAddress
+];
+
+var separatorAbi = ethAbi.rawEncode(EIP_712_DOMAIN_SCHEME, separatorValues);
+let DOMAIN_SEPARATOR 				= ethUtil.bufferToHex(ethUtil.keccak256(separatorAbi));
+
+
+/*------------------------------------*/
+/* AT THE SAME TIME:  */
+/* message  */
+/*------------------------------------*/
+
+/* 1. Temporary account */
+let signer = account.address.toString();
+
+/* 2. ID */
+let ID = 'ahmetson@zoho.com';
+let ID_HASH = ethUtil.bufferToHex(ethUtil.keccak256(ID));
+
+/*------------------------------------*/
+/* message  */
+/*------------------------------------*/
+
+let TEMPORARY_TXTYPE = "UpdateTemporary(address temporary,string memory id)";
+let TEMPORARY_TXTYPE_HASH = ethUtil.bufferToHex(ethUtil.keccak256(TEMPORARY_TXTYPE));
+
+// message to be signed:
+// 1. funcNameHash,  2. signer address,  3. idHash
+// message bytes are generated by abi encoding in the format:
+// bytes32,address,bytes32
+let temporaryTypes = [
+	'bytes32',
+    'address',
+    'bytes32'
+];
+
+let temporaryValues = [
+	TEMPORARY_TXTYPE_HASH, 
+	signer, 
+	ID_HASH 
+];
+
+var temporaryAbi 				= ethAbi.rawEncode(temporaryTypes, temporaryValues);
+let TEMPORARY_HASH 				= ethUtil.bufferToHex(ethUtil.keccak256(temporaryAbi));
+
+/*------------------------------------*/
+/* Epopeya  */
+/*------------------------------------*/
+
+// message that will given to privatekey.
+// Hash of 3 parameters:
+// 0x1901,  domain separator, message hash
+
+let prefix = 0x1901;
+let prefixAbi = '0x1901';
+
+let digestTypes = [
+	'bytes2',
+    'bytes32',
+    'bytes32'
+];
+
+let digestValues = [
+	prefixAbi, 
+	DOMAIN_SEPARATOR, 
+	TEMPORARY_HASH 
+];
+
+
+let DIGEST = ethAbi.soliditySHA3(
+	digestTypes,
+	digestValues
+);
+
+// var digestAbi 				= ethAbi.solidityPack(digestTypes, digestValues);
+// let DIGEST_2 				= ethUtil.bufferToHex(ethUtil.keccak256(digestAbi));
+
+
+console.log("\n");
+console.log("***************************************");
+console.log("6. Offline signing messages");
+console.log("***************************************\n");
+
+console.log('   Signing address: '+account.address);
+console.log('');
+console.log('   Domain separator parameters (domainHash, nameHash, versionHash, chainId, contractAddress):');
+console.log('   1. EIP-712 Type:     '+EIP_712_DOMAIN_TYPE)
+console.log('   2. Name:             '+UPDATING_PRIMARY_NAME_HASH)
+console.log('   3. Version:          '+VERSION_HASH)
+console.log('   4. Chain ID:         '+chainId)
+console.log('   5. Contract Address: '+contractAddress);
+console.log('');
+
+console.log('   Encoded using ABI: '+ethUtil.bufferToHex(separatorAbi));
+console.log('   Domain Separator Hash 1: '+DOMAIN_SEPARATOR)
+console.log('')
+
+console.log('   Temporary Message (temporary tx type hash, address, ID hash):');
+console.log('   1. Temporary Tx type Hash: '+TEMPORARY_TXTYPE_HASH)
+console.log('   2. Address:                '+signer)
+console.log('   2. ID:                     "'+ID+'"  '+ID_HASH)
+console.log('')
+
+console.log('   Temporary Message Abi:  '+ethUtil.bufferToHex(temporaryAbi));
+console.log('   Temporary Message Hash: '+TEMPORARY_HASH);
+console.log('')
+
+console.log('   Digest (Prefix, Domain Separator, Temporary Message');
+console.log('   Digest Hash:            '+ethUtil.bufferToHex(DIGEST));
+console.log('')
+
+// let signingKey = loom.CryptoUtils.bytesToHex(account.privateKey);
+// console.log(signingKey);
+
+// const sig = ethUtil.ecsign(DIGEST, Buffer.from(signingKey, 'hex'));
+
+// var signedObject = web3.eth.sign(digestHex.substr(2), signingKey);
+// console.log(signedObject);
+// console.log(sig);
+// console.log('Signer:', web3.eth.accounts.recover(signedObject));
+
+// console.log(loom.CryptoUtils.bytesToHexAddr(account.publicKey));
+
+
+// console.log(digestHex.substr(2));
+// console.log(ethUtil.bufferToHex(ethUtil.keccak256(DIGEST)));
+
+let sampleSign = loom.CryptoUtils.sign(DIGEST, account.privateKey);
+let deployerSign = loom.CryptoUtils.sign(DIGEST, deployer.privateKey);
+// converting buffer to bytes will result a same signature
+// let digestHex = ethUtil.bufferToHex(DIGEST);
+// let digestBytes = loom.CryptoUtils.hexToBytes(digestHex);
+// let signedMessage = loom.CryptoUtils.sign(digestBytes, account.privateKey);
+
+// returns signature with a message data
+// signedMessage = nacl.sign(DIGEST, account.privateKey);
+// returns signed public key of the signature with a message data
+// console.log(loom.CryptoUtils.bytesToHex(nacl.sign.open(signedMessage, account.publicKey)));
+
+
+// returns signature without a message
+// let signedMessage = nacl.sign.detached(DIGEST, account.privateKey);
+// console.log(loom.CryptoUtils.bytesToHex(signedMessage));
+
+// console.log('Signer:', web3.eth.accounts.recover(DIGEST, signedObject));
+// let verified = nacl.sign.detached.verify(DIGEST, signedMessage, account.publicKey);
+
+let sampleSignString = "0x"+loom.CryptoUtils.bytesToHex(sampleSign)+"1b";
+let deployerSignString = "0x"+loom.CryptoUtils.bytesToHex(deployerSign)+"1b";
+let signedSampleObject = ethUtil.fromRpcSig(sampleSignString);
+let deployerSampleObject = ethUtil.fromRpcSig(deployerSignString);
 
 
 
-const TXTYPE_HASH_TEMPORARY = '0x626fa3909ffec8617c25e36eb89d32ac3e7acd5bf7238d2c5f269cceed4f2ed1';
+console.log("\n");
+console.log("***************************************");
+console.log("7. Invoke a multisig method");
+console.log("***************************************\n");
 
-const EIP712DOMAINTYPE_HASH = '0xd87cd6ef79d4e2b95e15ce8abf732db51ec771f1ca2edccf22a46c729ac56472';
-
-const NAME_HASH_PRIMARY = '0x01d766ba82427b4e83818bd3a2047efa2184e836a10a9c6dbf489a6b2c81949f'
-
-const VERSION_HASH_PRIMARY = '0xc89efdaa54c0f20c7adf612882df0950f5a951637e0307cdcb4c672f298b8bc6';
-
-const chainId = 9545242630824;
-
-const SALT = '0xfbbbedd42a3ca2dc0ec761a1d7ca7eaea72b97aa3f7c46c3a7cd20be0ae6c8dc';
-
-// DOMAIN_SEPARATOR_TEMPORARY = keccak256(abi.encode(EIP712DOMAINTYPE_HASH,
-                                                // NAME_HASH_PRIMARY,
-                                                // VERSION_HASH_PRIMARY,
-                                                // chainId,
-                                                // walletlessAddress,
-                                                // SALT));
-console.log(Eth);
-
-// var txInputHash = keccak256(abi.encode(TXTYPE_HASH_TEMPORARY, account, id, nonce));
-// var totalHash = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR_TEMPORARY, txInputHash));
 
 // todo remove when scripts will be turned into async methods
 // process.exit(0);
+
+let sigV = [signedSampleObject.v, deployerSampleObject.v];
+let sigR = [signedSampleObject.r, deployerSampleObject.r];
+let sigS = [signedSampleObject.s, deployerSampleObject.s];
+
+console.log(account.address);
+
+// address temporary, string memory ID, uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS
+result = walletlessInteractor.send('UpdateTemporary', account.address.toString(), ID, sigV, sigR, sigS);
+result.then(x => {
+	if (x == false) {
+		console.log('Failed');
+		console.log(x);
+	}
+	else {
+		console.log('Success: ');
+		console.log(x);
+	}
+})
+.catch(e => {
+	console.trace(e);
+})
+
