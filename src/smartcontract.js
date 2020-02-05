@@ -31,4 +31,21 @@ Smartcontract.prototype.call = function () {
     return this.instance.call(args);
 };
 
+
+// Get some data from the Blockchain
+Smartcontract.prototype.send = function () {
+    if (this.instance === undefined) {
+        throw "Smartcontract not instantiniated";
+    }
+
+    if (arguments.length == 0) {
+        throw "Calling function name was not given";
+    }
+
+    // turn to real array
+    let args = Array.from(arguments);
+
+    return this.instance.send(args);
+};
+
 module.exports = Smartcontract;
