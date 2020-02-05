@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x02EbB3E0828146D170D31Ec692775764cc6B4041';	
+walletlessAddress = '0xD5993A6380710e03E015CB3cBAe58c20DB7ef560';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -118,11 +118,11 @@ let UPDATING_TEMPORARY_NAME 		= "Update Temporary Address";
 let UPDATING_TEMPORARY_NAME_HASH 	= ethUtil.bufferToHex(ethUtil.keccak256(UPDATING_TEMPORARY_NAME));
 
 /* 3. Version: keccak256('1') */
-let VERSION 					= 1;
+let VERSION 					= "1";
 var VERSION_HASH 				= ethUtil.bufferToHex(ethUtil.keccak256(VERSION));
 
 /* 4. */
-var chainId = 1;
+var chainId = 9545242630824;
 
 /* 5. */
 var contractAddress = walletlessAddress;
