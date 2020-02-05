@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x9B5757629c26148089976CC688b8bAa9B22761A8';	
+walletlessAddress = '0x1553B765656537eB2DC079cE95e31dB08235a927';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -114,11 +114,11 @@ let EIP_712_DOMAIN_TYPE 		= ethUtil.bufferToHex(ethUtil.keccak256(EIP_712_DOMAIN
 /*------------------------------------*/
 
 /* 2. Name of the function keccak256('"Update Primary Address"') */
-let UPDATING_PRIMARY_NAME 		= "Update Primary Address";
-let UPDATING_PRIMARY_NAME_HASH 	= ethUtil.bufferToHex(ethUtil.keccak256(UPDATING_PRIMARY_NAME));
+let UPDATING_TEMPORARY_NAME 		= "Update Temporary Address";
+let UPDATING_TEMPORARY_NAME_HASH 	= ethUtil.bufferToHex(ethUtil.keccak256(UPDATING_TEMPORARY_NAME));
 
 /* 3. Version: keccak256('1') */
-let VERSION 					= '0x1';
+let VERSION 					= 1;
 var VERSION_HASH 				= ethUtil.bufferToHex(ethUtil.keccak256(VERSION));
 
 /* 4. */
@@ -138,10 +138,11 @@ let EIP_712_DOMAIN_SCHEME = [
 
 let separatorValues = [
 	EIP_712_DOMAIN_TYPE, 
-	UPDATING_PRIMARY_NAME_HASH, 
+	UPDATING_TEMPORARY_NAME_HASH, 
 	VERSION_HASH, 
 	chainId, 
-	contractAddress
+	// contractAddress
+	'0x5E72914535f202659083Db3a02C984188Fa26e9f'
 ];
 
 var separatorAbi = ethAbi.rawEncode(EIP_712_DOMAIN_SCHEME, separatorValues);
@@ -196,10 +197,14 @@ let prefix = 0x1901;
 let prefixAbi = '0x1901';
 
 let digestTypes = [
+	'bytes2',
+    'bytes32',
     'bytes32'
 ];
 
 let digestValues = [
+	prefixAbi, 
+	DOMAIN_SEPARATOR, 
 	TEMPORARY_HASH 
 ];
 
@@ -209,8 +214,8 @@ let DIGEST = ethAbi.soliditySHA3(
 	digestValues
 );
 
-// var digestAbi 				= ethAbi.solidityPack(digestTypes, digestValues);
-// let DIGEST_2 				= ethUtil.bufferToHex(ethUtil.keccak256(digestAbi));
+var digestAbi 				= ethAbi.rawEncode(digestTypes, digestValues);
+let DIGEST_2 				= ethUtil.bufferToHex(ethUtil.keccak256(digestAbi));
 
 
 console.log("\n");
@@ -222,7 +227,7 @@ console.log('   Signing address: '+account.address);
 console.log('');
 console.log('   Domain separator parameters (domainHash, nameHash, versionHash, chainId, contractAddress):');
 console.log('   1. EIP-712 Type:     '+EIP_712_DOMAIN_TYPE)
-console.log('   2. Name:             '+UPDATING_PRIMARY_NAME_HASH)
+console.log('   2. Name:             '+UPDATING_TEMPORARY_NAME_HASH)
 console.log('   3. Version:          '+VERSION_HASH)
 console.log('   4. Chain ID:         '+chainId)
 console.log('   5. Contract Address: '+contractAddress);
@@ -243,7 +248,8 @@ console.log('   Temporary Message Hash: '+TEMPORARY_HASH);
 console.log('')
 
 console.log('   Digest (Prefix, Domain Separator, Temporary Message');
-console.log('   Digest Hash:            '+ethUtil.bufferToHex(DIGEST));
+console.log('   Digest  Hash:            '+ethUtil.bufferToHex(DIGEST));
+console.log('   Digest2 Hash:            '+DIGEST_2);
 console.log('')
 
 // let signingKey = loom.CryptoUtils.bytesToHex(account.privateKey);
