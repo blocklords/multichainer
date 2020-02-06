@@ -69,6 +69,18 @@ Account.fromPrivateKeyFile = function(path, accountType) {
 
         return account;
     }
+    else if (accountType === Account.TYPE.ETHEREUM) {
+        let ethAccount = EthAccount.fromPrivateKeyFile(path); 
+    
+        let account = new Account(ethAccount.address, accountType);
+
+        account.setKeyPair(ethAccount.privateKey, ethAccount.publicKey);
+        account.setObject(ethAccount);
+        account.setLocalObject(ethAccount.localObject);
+
+
+        return account;
+    }
 
     return new Account();
 };

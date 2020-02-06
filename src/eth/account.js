@@ -14,7 +14,13 @@ var Account = function(address, privateKey, publicKey) {
 
 Account.prototype.sign = function(message) {
     var buff = ethUtil.toBuffer(message);
-    var privateKey = new Buffer.from(this.privateKey.substr(2), "hex")
+
+    let unprefixed = this.privateKey;
+    if (this.privateKey.substr(0, 2) == "0x") {
+        unprefixed = this.privateKey.substr(2);
+    }
+
+    var privateKey = new Buffer.from(unprefixed, "hex")
 
     var sig = ethUtil.ecsign(buff, privateKey);
 
@@ -35,12 +41,13 @@ Account.fromPrivateKeyFile = function(keyPath) {
     catch (e) {
         throw (e);
     }
-    var privateKey = loom.CryptoUtils.B64ToUint8Array(keyString);
+    let ethAccount = web3.eth.accounts.wallet.add(keyString);
 
-    const publicKey = loom.CryptoUtils.publicKeyFromPrivateKey(privateKey);
+    let account = new Account(ethAccount.address, ethAccount.privateKey, ethAccount.publicKey);
 
-    const address = loom.LocalAddress.fromPublicKey(publicKey);
-    return Account(address, privateKey, publicKey);
+    account.localObject = ethAccount;
+
+    return account;
 };
 
 
