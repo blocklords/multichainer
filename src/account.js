@@ -1,5 +1,6 @@
 const Multichainer = require('./multichainer.js');
 const { Account: LoomAccount } = require ('./loom/index.js');
+const { Account: EthAccount } = require ('./eth/index.js');
 
 var Account = function(address, accountType) {
     this.address = address.toString();
@@ -16,12 +17,39 @@ Account.prototype.setKeyPair = function(privateKey, publicKey) {
     this.publicKey = publicKey;
 };
 
+Account.prototype.setLocalObject = function(local) {
+    this.localObject = local;
+};
+
+Account.prototype.setObject = function(object) {
+    this.object = object;
+};
+
+/**
+ *  Sign the given message
+ */
+Account.prototype.sign = function (message) {
+    return this.object.sign(message);
+};
+
 
 Account.validateAccountType = function(type) {
     if (Account.TYPE[type] === undefined) {
         throw "Invalid Account type: "+type;
     }
 };
+
+/**
+ *  Return the Account Object that was created by 
+ *  Blockchain Library.
+ */
+Account.prototype.getLocal = function () {
+    if (this.localObject) {
+        return this.localObject;
+    }
+    return this;
+};
+
 
 /**
  * Creates an account of a given type from a privatekey
@@ -64,6 +92,16 @@ Account.getRandom = function(accountType) {
         account.setKeyPair(loomAccount.privateKey, loomAccount.publicKey);
 
         return account;
+    }
+    else if (accountType === Account.TYPE.ETHEREUM) {
+        let ethAccount = EthAccount.getRandom(); 
+    
+        let account = new Account(ethAccount.address, accountType);
+        account.setKeyPair(ethAccount.publicKey, ethAccount.privateKey);
+        account.setObject(ethAccount);
+        account.setLocalObject(ethAccount.localObject);
+
+        return account;    
     }
 
     return new Account();

@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x05e0A228A99DC5fce83c0a6766D9Cc5A385E11CD';	
+walletlessAddress = '0x573a918A98795f67C35D654b11d546FbBbbA3982';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -44,17 +44,19 @@ console.log("**********************************************\n");
 const deployer = Account.fromPrivateKeyFile(deployerPrivateKeyPath, Account.TYPE.LOOM);
 console.log("   Contract Deployer: "+deployer.address);
 
-// const account = Account.getRandom(Account.TYPE.LOOM);
-// console.log("   Random Account: "+account.address);
+const account = Account.getRandom(Account.TYPE.ETHEREUM);
+console.log("   Random Account: "+account.address);
 
-const account = Account.fromPrivateKeyFile(samplePrivateKeyPath, Account.TYPE.LOOM);
-console.log("   Sample account: "+account.address);
+// const account = Account.fromPrivateKeyFile(samplePrivateKeyPath, Account.TYPE.LOOM);
+// console.log("   Sample account: "+account.address);
 
 
 // -------------------------------------------
 // 3. Node connection. Loom provider
 // -------------------------------------------
-const loomProvider = mc.getProvider(account);
+const random = Account.getRandom(Account.TYPE.LOOM);
+
+const loomProvider = mc.getProvider(random);
 
 
 // --------------------------------------------
@@ -66,7 +68,7 @@ const walletless = Contract.fromAbiFile(walletlessAddress, walletlessAbiPath, lo
 // --------------------------------------------
 // 5. Get Contract information: for example player id
 // --------------------------------------------
-const walletlessInteractor = new Smartcontract(walletless, account);
+const walletlessInteractor = new Smartcontract(walletless, random);
 
 console.log('\n\n');
 console.log("*********************************************************");
@@ -270,10 +272,13 @@ console.log('')
 // console.log(digestHex.substr(2));
 // console.log(ethUtil.bufferToHex(ethUtil.keccak256(DIGEST)));
 
-let sampleSign = loom.CryptoUtils.sign(DIGEST, account.privateKey);
+// let sampleSign = loom.CryptoUtils.sign(DIGEST, account.privateKey);
+let digestHex = ethUtil.bufferToHex(DIGEST);
+let sampleSign = account.sign(digestHex);
+console.log(sampleSign);
+
 let deployerSign = loom.CryptoUtils.sign(DIGEST, deployer.privateKey);
 // converting buffer to bytes will result a same signature
-// let digestHex = ethUtil.bufferToHex(DIGEST);
 // let digestBytes = loom.CryptoUtils.hexToBytes(digestHex);
 // let signedMessage = loom.CryptoUtils.sign(digestBytes, account.privateKey);
 
@@ -290,12 +295,10 @@ let deployerSign = loom.CryptoUtils.sign(DIGEST, deployer.privateKey);
 // console.log('Signer:', web3.eth.accounts.recover(DIGEST, signedObject));
 // let verified = nacl.sign.detached.verify(DIGEST, signedMessage, account.publicKey);
 
-let sampleSignString = "0x"+loom.CryptoUtils.bytesToHex(sampleSign)+"1c";
-let deployerSignString = "0x"+loom.CryptoUtils.bytesToHex(deployerSign)+"1c";
-let signedSampleObject = ethUtil.fromRpcSig(sampleSignString);
-let deployerSampleObject = ethUtil.fromRpcSig(deployerSignString);
-
-
+// let sampleSignString = "0x"+loom.CryptoUtils.bytesToHex(sampleSign)+"1c";
+// let deployerSignString = "0x"+loom.CryptoUtils.bytesToHex(deployerSign)+"1c";
+// let signedSampleObject = ethUtil.fromRpcSig(sampleSignString);
+// let deployerSampleObject = ethUtil.fromRpcSig(deployerSignString);
 
 console.log("\n");
 console.log("***************************************");
@@ -303,13 +306,12 @@ console.log("***************************************");
 console.log("7. Debug the signing message:");
 console.log("***************************************\n");
 
-
 // todo remove when scripts will be turned into async methods
 // process.exit(0);
 
-let sigV = signedSampleObject.v;//, deployerSampleObject.v];
-let sigR = signedSampleObject.r;//, deployerSampleObject.r];
-let sigS = signedSampleObject.s;//, deployerSampleObject.s];
+let sigV = sampleSign.v;//, deployerSampleObject.v];
+let sigR = sampleSign.r;//, deployerSampleObject.r];
+let sigS = sampleSign.s;//, deployerSampleObject.s];
 
 // address temporary, string memory ID, uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS
 result = walletlessInteractor.send('UpdateTemporary', account.address.toString(), ID, sigV, sigR, sigS);
