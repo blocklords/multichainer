@@ -11,12 +11,12 @@ const nacl = require('tweetnacl');
 const blockchain = 'ethereum';
 const network = 'privatenet';
 const sidechain = 'loom';
-const deployerPrivateKeyPath = path.join(__dirname, '../private/deployer_private_key');
+const gameOwnerPrivateKeyPath = path.join(__dirname, '../private/game_owner_private_key');
 const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key');
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x573a918A98795f67C35D654b11d546FbBbbA3982';	
+walletlessAddress = '0x56eb17DB90298fE2f218022602C06E81Eb8241a9';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -41,8 +41,8 @@ console.log("**********************************************");
 console.log("2. Account that will interact with Blockchain");
 console.log("**********************************************\n");
 
-const deployer = Account.fromPrivateKeyFile(deployerPrivateKeyPath, Account.TYPE.LOOM);
-console.log("   Contract Deployer: "+deployer.address);
+const gameOwner = Account.fromPrivateKeyFile(gameOwnerPrivateKeyPath, Account.TYPE.ETHEREUM);
+console.log("   Game Developer Account: "+gameOwner.address);
 
 const account = Account.getRandom(Account.TYPE.ETHEREUM);
 console.log("   Random Account: "+account.address);
@@ -275,9 +275,9 @@ console.log('')
 // let sampleSign = loom.CryptoUtils.sign(DIGEST, account.privateKey);
 let digestHex = ethUtil.bufferToHex(DIGEST);
 let sampleSign = account.sign(digestHex);
-console.log(sampleSign);
 
-let deployerSign = loom.CryptoUtils.sign(DIGEST, deployer.privateKey);
+let gameOwnerSign = gameOwner.sign(digestHex);
+// let deployerSign = loom.CryptoUtils.sign(DIGEST, deployer.privateKey);
 // converting buffer to bytes will result a same signature
 // let digestBytes = loom.CryptoUtils.hexToBytes(digestHex);
 // let signedMessage = loom.CryptoUtils.sign(digestBytes, account.privateKey);
@@ -309,9 +309,9 @@ console.log("***************************************\n");
 // todo remove when scripts will be turned into async methods
 // process.exit(0);
 
-let sigV = sampleSign.v;//, deployerSampleObject.v];
-let sigR = sampleSign.r;//, deployerSampleObject.r];
-let sigS = sampleSign.s;//, deployerSampleObject.s];
+let sigV = [sampleSign.v, gameOwnerSign.v];
+let sigR = [sampleSign.r, gameOwnerSign.r];
+let sigS = [sampleSign.s, gameOwnerSign.s];
 
 // address temporary, string memory ID, uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS
 result = walletlessInteractor.send('UpdateTemporary', account.address.toString(), ID, sigV, sigR, sigS);
