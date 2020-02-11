@@ -21,6 +21,10 @@ Account.prototype.setLocalObject = function(local) {
     this.localObject = local;
 };
 
+Account.prototype.setProvider = function(provider) {
+    this.provider = provider;
+};
+
 Account.prototype.setObject = function(object) {
     this.object = object;
 };
@@ -78,8 +82,43 @@ Account.fromPrivateKeyFile = function(path, accountType) {
         account.setObject(ethAccount);
         account.setLocalObject(ethAccount.localObject);
 
+        return account;
+    }
+
+    return new Account();
+};
+
+/**
+ * Creates an account of a given type from a privatekey
+ *
+ * TODO make accountType parameter optional, and detect by multichainer object
+ */
+Account.fromPrivateKeyFileWithProvider = function(path, accountType, provider) {
+    Account.validateAccountType(accountType);
+
+    // todo validate path
+    if (accountType === Account.TYPE.LOOM) {
+
+        let loomAccount = LoomAccount.fromPrivateKeyFileProvider(path);
+
+        let account = new Account(loomAccount.address, accountType);
+        account.setKeyPair(loomAccount.privateKey, loomAccount.publicKey);
 
         return account;
+    }
+    else if (accountType === Account.TYPE.ETHEREUM) {
+        let ethAccount = EthAccount.fromPrivateKeyFileWithProvider(path, provider); 
+        ethAccount.setAccountType(accountType);
+
+        return ethAccount;
+        // let account = new Account(ethAccount.address, accountType);
+
+        // account.setKeyPair(ethAccount.privateKey, ethAccount.publicKey);
+        // account.setObject(ethAccount);
+        // account.setLocalObject(ethAccount.localObject);
+        // account.setProvider(provider);
+
+        // return account;
     }
 
     return new Account();
