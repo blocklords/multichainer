@@ -1,0 +1,355 @@
+{
+  "contractName": "Collector",
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "itemID",
+          "type": "uint256"
+        }
+      ],
+      "name": "IsCollectableItem",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"name\":\"itemID\",\"type\":\"uint256\"}],\"name\":\"IsCollectableItem\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/mnt/c/repos/blocklords-loom-contracts/contracts/Collector.sol\":\"Collector\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/mnt/c/repos/blocklords-loom-contracts/contracts/Collector.sol\":{\"keccak256\":\"0xd5b1edb85a30624a498bd563ae7344c939a621d9394393d3d9f88311e6fbd812\",\"urls\":[\"bzzr://5fc43eec77678a53dc74e327a52ee314e4c7593e54f055eaa74ed4034824d1d5\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063fb59594914602d575b600080fd5b605660048036036020811015604157600080fd5b81019080803590602001909291905050506070565b604051808215151515815260200191505060405180910390f35b60006001905091905056fea165627a7a723058208b8a0a1bb50dd0fc260ff4508416353b2cf7a7d10b18accbe54c9821ef410e700029",
+  "deployedBytecode": "0x6080604052348015600f57600080fd5b506004361060285760003560e01c8063fb59594914602d575b600080fd5b605660048036036020811015604157600080fd5b81019080803590602001909291905050506070565b604051808215151515815260200191505060405180910390f35b60006001905091905056fea165627a7a723058208b8a0a1bb50dd0fc260ff4508416353b2cf7a7d10b18accbe54c9821ef410e700029",
+  "sourceMap": "27:135:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;27:135:3;;;;;;;",
+  "deployedSourceMap": "27:135:3:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;27:135:3;;;;;;;;;;;;;;;;;;;71:88;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;71:88:3;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;;;;;;129:4;149;142:11;;71:88;;;:::o",
+  "source": "pragma solidity ^0.5.0;\r\n\r\ncontract Collector {\r\n  // not built yet\r\n  function IsCollectableItem(uint itemID) external returns (bool) {\r\n    return true;\r\n  }\r\n}\r\n",
+  "sourcePath": "/mnt/c/repos/blocklords-loom-contracts/contracts/Collector.sol",
+  "ast": {
+    "absolutePath": "/mnt/c/repos/blocklords-loom-contracts/contracts/Collector.sol",
+    "exportedSymbols": {
+      "Collector": [
+        323
+      ]
+    },
+    "id": 324,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 312,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:3"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 323,
+        "linearizedBaseContracts": [
+          323
+        ],
+        "name": "Collector",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 321,
+              "nodeType": "Block",
+              "src": "135:24:3",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "74727565",
+                    "id": 319,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "149:4:3",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 318,
+                  "id": 320,
+                  "nodeType": "Return",
+                  "src": "142:11:3"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 322,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "IsCollectableItem",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 315,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 314,
+                  "name": "itemID",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 322,
+                  "src": "98:11:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 313,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "98:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "97:13:3"
+            },
+            "returnParameters": {
+              "id": 318,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 317,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 322,
+                  "src": "129:4:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 316,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "129:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "128:6:3"
+            },
+            "scope": 323,
+            "src": "71:88:3",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          }
+        ],
+        "scope": 324,
+        "src": "27:135:3"
+      }
+    ],
+    "src": "0:164:3"
+  },
+  "legacyAST": {
+    "absolutePath": "/mnt/c/repos/blocklords-loom-contracts/contracts/Collector.sol",
+    "exportedSymbols": {
+      "Collector": [
+        323
+      ]
+    },
+    "id": 324,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 312,
+        "literals": [
+          "solidity",
+          "^",
+          "0.5",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:3"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 323,
+        "linearizedBaseContracts": [
+          323
+        ],
+        "name": "Collector",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": {
+              "id": 321,
+              "nodeType": "Block",
+              "src": "135:24:3",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "hexValue": "74727565",
+                    "id": 319,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "bool",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "149:4:3",
+                    "subdenomination": null,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    },
+                    "value": "true"
+                  },
+                  "functionReturnParameters": 318,
+                  "id": 320,
+                  "nodeType": "Return",
+                  "src": "142:11:3"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 322,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "IsCollectableItem",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 315,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 314,
+                  "name": "itemID",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 322,
+                  "src": "98:11:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 313,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "98:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "97:13:3"
+            },
+            "returnParameters": {
+              "id": 318,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 317,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 322,
+                  "src": "129:4:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 316,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "129:4:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "128:6:3"
+            },
+            "scope": 323,
+            "src": "71:88:3",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "external"
+          }
+        ],
+        "scope": 324,
+        "src": "27:135:3"
+      }
+    ],
+    "src": "0:164:3"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.8+commit.23d335f2.Emscripten.clang"
+  },
+  "networks": {
+    "9545242630824": {
+      "events": {},
+      "links": {},
+      "address": "0x6aa286a89FbD9131a09f828e143285D7EBd0Fddf",
+      "transactionHash": "0x061b744f594e152775ccebdd8f01b5c1c91c78eb12e8fda355916945b932bfa5"
+    }
+  },
+  "schemaVersion": "3.0.15",
+  "updatedAt": "2020-02-09T18:29:11.407Z",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}

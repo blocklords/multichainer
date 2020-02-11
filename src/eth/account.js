@@ -3,6 +3,7 @@ const { readFileSync } = require('fs');
 let Web3 = require('web3');
 var web3 = new Web3(Web3.givenProvider); // your geth
 const ethUtil = require('ethereumjs-util');
+let ethers = require('ethers');
 
 var Account = function(address, privateKey, publicKey) {
     this.address = address;
@@ -41,9 +42,10 @@ Account.fromPrivateKeyFile = function(keyPath) {
     catch (e) {
         throw (e);
     }
-    let ethAccount = web3.eth.accounts.wallet.add(keyString);
+    let ethAccount = new ethers.Wallet(keyString);
+    // let ethAccount = web3.eth.accounts.wallet.add(keyString);
 
-    let account = new Account(ethAccount.address, ethAccount.privateKey, ethAccount.publicKey);
+    let account = new Account(ethAccount.signingKey.address, ethAccount.signingKey.privateKey, ethAccount.signingKey.publicKey);
 
     account.localObject = ethAccount;
 
