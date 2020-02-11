@@ -69,4 +69,14 @@ Multichainer.prototype.getProvider = function(signer = undefined) {
     return undefined;
 };
 
+Multichainer.prototype.getProviderWithSigner = function(signer, signerType) {
+    if (Multichainer.instance === undefined) {
+        throw "Multichainer is undefined";
+    }
+    // Loom?
+    if (Multichainer.instance.blockchain == BLOCKCHAINS.ethereum && Multichainer.instance.sidechain == SIDECHAINS.loom) {
+        return loomProvider.getProviderWithSigner(Multichainer.instance.network, signer, signerType);
+    }
+};
+
 module.exports = Multichainer;
