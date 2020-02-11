@@ -16,7 +16,7 @@ const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0x56eb17DB90298fE2f218022602C06E81Eb8241a9';	
+walletlessAddress = '0xe92E7Bac0d31bdA66825eF150056a01636DadC8b';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -78,7 +78,9 @@ console.log("*********************************************************\n");
 console.log("    Walletless contract address: "+walletless.address)
 
 // Get Email of the Account
-let result = walletlessInteractor.call('GetID', account.address.toString());
+
+// let result = walletlessInteractor.call('GetID', account.address.toString());
+let result = walletlessInteractor.call('GetID', '0x407CF07Bbc1A20EC3889bE7881Be34BF089162E9');
 result.then(x => {
 	if (x == false) {
 		console.log('No ID found');
