@@ -1,8 +1,8 @@
 {
   "name": "multichainer",
-  "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.3",
+  "description": "Interact with Eth, Loom with the same API",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
