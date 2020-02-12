@@ -29,10 +29,11 @@ const testerPrivateKeyPath = path.join(__dirname, '../../private/tester_private_
 
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
 
-const walletlessAddress = '0xe92E7Bac0d31bdA66825eF150056a01636DadC8b';	
+const walletlessAddress = '0x458183c8AAc51a33f1391b5405da1Bd8758b79Ed';	
 const walletlessAbiPath = path.join(__dirname, '../../abi/Walletless.json');		
 
-const itemContractAddress = '0xb148213026040F5B52B378B703d167837fE75b5F';
+// const itemContractAddress = '0x543d3BDbC6c242c6A94AcbACc82CeeA1f181591e';
+const itemContractAddress = '0x3b9927cf7bD90318d0774F115Af457Eb4FD04f74';
 const itemContractAbiPath = path.join(__dirname, '../../abi/ItemContract.json');
 
 const collectorAddress = '0x6aa286a89FbD9131a09f828e143285D7EBd0Fddf';
@@ -109,7 +110,7 @@ let setAddressTypes = [
 
 let contractOwnerSignValues = [
 	gameOwner.address,
-	7
+	6
 ];
 
 let contractOwnerHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
@@ -122,7 +123,7 @@ let contractOwnerSign = gameOwner.sign(contractOwnerHash);
 
 let heroTokenValues = [
 	heroToken,
-	8
+	7
 ];
 
 let heroTokenHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
@@ -135,7 +136,7 @@ let heroTokenSign = gameOwner.sign(heroTokenHash);
 
 let walletlessValues = [
 	walletlessAddress,
-	9
+	8
 ];
 
 let walletlessHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
@@ -148,7 +149,7 @@ let walletlessSign = gameOwner.sign(walletlessHash);
 
 let brokerValues = [
 	gameOwner.address,
-	10
+	9
 ];
 
 let brokerHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
@@ -161,7 +162,7 @@ let brokerSign = gameOwner.sign(brokerHash);
 
 let collectorValues = [
 	collectorAddress,
-	11
+	10
 ];
 
 let collectorHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
@@ -170,6 +171,26 @@ let collectorHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
 ));
 
 let collectorSign = gameOwner.sign(collectorHash);
+
+let itemID = 1;
+let itemOwnerAddress = account.address;
+let itemSettingTypes = [
+    'address',		// item owner address
+    'uint',			// item ID
+    'uint'			// nonce
+];
+let itemSettingValues = [
+	itemOwnerAddress,
+	itemID,
+	11
+];
+
+let itemSettingHash = ethUtil.bufferToHex(ethAbi.soliditySHA3(
+	itemSettingTypes,
+	itemSettingValues
+));
+
+let itemSettingSign = gameOwner.sign(itemSettingHash);
 
 
 
@@ -181,6 +202,11 @@ let settings = {
 	walletlessSign: walletlessSign,
 	brokerSign: brokerSign,
 	collectorSign: collectorSign,
+	itemSettingSign: itemSettingSign,
+
+	itemID: itemID,
+	itemOwnerAddress: itemOwnerAddress,
+	burnID: 0,
 
 	contractOwner: gameOwner.address.toString(),
 	heroToken: heroToken,
@@ -208,6 +234,14 @@ console.log("Settings Addresses on the Smartcontract: ");
 itemContractTest.setAddresses(settings).then(x => {
 	console.log("All addresses were set");
 	console.log(x);
+	console.log("------------------------------");
+	console.log("Set some item");
+	itemContractTest.setItem(settings).then(itemSettingRes => {
+		console.log("Some item has been set");
+		console.log(itemSettingRes);
+	}).catch(e => {
+		console.error(e);
+	})
 // 	// x.from = gameOwner.address;
 // 	// loomProvider.eth.call(x, x.blockNumber).then(code => {
 // 		// console.log(code);
@@ -231,7 +265,7 @@ let result = itemContractInteractor.call('nonce');
 // );
 result.then(x => {
 	if (x == false) {
-		console.log('Digest wanst returned');
+		console.log('Digest wasnt returned');
 	}
 	else {
 		console.log(contractOwnerSign);
@@ -242,21 +276,3 @@ result.then(x => {
 .catch(e => {
 	console.trace(e);
 })
-
-
-// // address temporary, string memory ID, uint8[] memory sigV, bytes32[] memory sigR, bytes32[] memory sigS
-// result = walletlessInteractor.send('UpdateTemporary', account.address.toString(), ID, sigV, sigR, sigS);
-// result.then(tx => {
-// 	if (tx == false) {
-// 		console.log('Failed:');
-// 		console.log(tx);
-// 	}
-// 	else {
-// 		console.log(tx);
-// 		console.log('Success: (Message Digest)');
-// 		console.log(tx.events.logBytes32.returnValues);
-// 	}
-// })
-// .catch(e => {
-// 	console.trace(e);
-// })

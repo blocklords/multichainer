@@ -253,6 +253,50 @@ let setCollector = function (settings) {
 	return p;
 };
 
+// Required parameters:
+//		settings.itemContractInteractor (object)
+//		settings.itemID 				(int)
+//		settings.burnID 				(int)
+//		settings.itemSettingSig 		(int,bytes,bytes)
+//		settings.itemOwnerAddress		(address)
+let setItem = function (settings) {
+	var p = new Promise(function(resolve, reject) {
+		if (typeof(settings) !== "object") {
+			reject("Settings were not given");
+			return;
+		}
+
+		if (settings.itemContractInteractor == null || 
+			settings.itemContractInteractor == undefined) {
+			reject("Item Contract not set");
+			return;
+		}
+
+		// validate the existance of the address
+		if (typeof(settings.itemOwnerAddress) !== "string") {
+			reject("settings.itemOwnerAddress address not found");
+			return;
+		}
+
+		// validate the existance of the address
+		if (typeof(settings.itemID) !== "number") {
+			reject("settings.itemID not found");
+			return;
+		}		
+
+		let result = settings.itemContractInteractor.send('SetItem', 
+			settings.itemOwnerAddress,
+			settings.itemID,
+			settings.burnID,
+			settings.itemSettingSign.v,
+			settings.itemSettingSign.r,
+			settings.itemSettingSign.s);
+		result.then(x => {resolve(x);}).catch(x => {reject(x);});
+	});
+
+	return p;
+};
+
 // Second batch of Item Contract Tests
 // // Set items
 
@@ -287,4 +331,5 @@ module.exports = {
 	setHeroToken: 		setHeroToken,	
 	setBroker: 			setBroker,	
 	setCollector: 		setCollector,	
+	setItem: 			setItem
 };

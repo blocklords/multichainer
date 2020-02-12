@@ -13,10 +13,11 @@ const network = 'privatenet';
 const sidechain = 'loom';
 const gameOwnerPrivateKeyPath = path.join(__dirname, '../private/game_owner_private_key');
 const samplePrivateKeyPath = path.join(__dirname, '../private/sample_private_key');
+const testerPrivateKeyPath = path.join(__dirname, '../private/tester_private_key');
 
 // LOOM testnet address of Walletless.sol contract
 // const walletlessAddress = '0x786e599cA97e726675f37daaDf3a8f1E8D892Ef4';	
-walletlessAddress = '0xe92E7Bac0d31bdA66825eF150056a01636DadC8b';	
+walletlessAddress = '0x458183c8AAc51a33f1391b5405da1Bd8758b79Ed';	
 // LOOM abi of Walletless.sol contract
 const walletlessAbiPath = path.join(__dirname, '../abi/Walletless.json');		
 
@@ -44,7 +45,7 @@ console.log("**********************************************\n");
 const gameOwner = Account.fromPrivateKeyFile(gameOwnerPrivateKeyPath, Account.TYPE.ETHEREUM);
 console.log("   Game Developer Account: "+gameOwner.address);
 
-const account = Account.getRandom(Account.TYPE.ETHEREUM);
+const account = Account.fromPrivateKeyFile(testerPrivateKeyPath, Account.TYPE.ETHEREUM);
 console.log("   Random Account: "+account.address);
 
 // const account = Account.fromPrivateKeyFile(samplePrivateKeyPath, Account.TYPE.LOOM);
@@ -79,8 +80,8 @@ console.log("    Walletless contract address: "+walletless.address)
 
 // Get Email of the Account
 
-// let result = walletlessInteractor.call('GetID', account.address.toString());
-let result = walletlessInteractor.call('GetID', '0x407CF07Bbc1A20EC3889bE7881Be34BF089162E9');
+let result = walletlessInteractor.call('GetNumber', account.address.toString());
+// let result = walletlessInteractor.call('GetID', '0x407CF07Bbc1A20EC3889bE7881Be34BF089162E9');
 result.then(x => {
 	if (x == false) {
 		console.log('No ID found');
