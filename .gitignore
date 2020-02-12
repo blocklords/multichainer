@@ -29,4 +29,6 @@ build/Release
 node_modules
 
 # Privatekeys
-private/*
+private
+test
+abi
