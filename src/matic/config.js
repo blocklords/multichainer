@@ -3,10 +3,13 @@
  * Version of the Multichainer library
  */
 
-// Ropsten network configurations
+// Matic Test-v3 network configurations
 let test_v3 = {
-	'ropsten': {
+	// Matic Test-v3 could be used as sidechain of ethereum ropsten
+	'ethereum': {
+		'ropsten': {
 
+		}
 	}
 }
 
