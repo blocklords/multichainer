@@ -85,10 +85,14 @@ var Multichainer = function (blockchain, network) {
 Multichainer.prototype.addSidechain = function (blockchain, network) {
     this.sidechain          = new Multichainer(blockchain, network);
 
-    if (this.sidechain.config[this.network] === undefined) {
-        throw `The ${this.name}-${this.network} can't be mapped to ${blockchain} ${network}`;
+    let mapping = this.sidechain.config[this.name];
+    if (mapping === undefined) {
+        throw `${blockchain} can not be sidechain of ${this.name}`;
     }
-    this.sidechain.config = this.sidechain.config[this.network];
+    if (mapping[this.network] === undefined) {
+        throw `The ${this.name}-${this.network} can't be mapped to ${blockchain}-${network}`;
+    }
+    this.sidechain.config = mapping[this.network];
 
     return this.sidechain;
 };
