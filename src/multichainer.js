@@ -6,6 +6,7 @@
  *  Forget about web3, matic.js, loomjs, neojs. Use just Multichainer to make your DAPP crossplatformed
  */
 
+
 /*************************************************************************
  *  Import all blockchains that are connected by Multichainer
  *************************************************************************
@@ -16,9 +17,14 @@
  *      1. Loom
  *      2. Matic
  */
+let blockchains = [];
+blockchains.push (require('./ethereum/index.js'));
+blockchains.push (require('./matic/index.js'));
+
 const config                        = require('./config.js');
-const { Provider: LoomProvider }    = require('./loom/index.js');
-const loomProvider                  = new LoomProvider();
+
+// const { Provider: LoomProvider }    = require('./loom/index.js');
+// const loomProvider                  = new LoomProvider();
 
 /**
  * Check the passed parameters to Multichainer, which means validate blockchain, network and sidechain
@@ -27,35 +33,25 @@ const loomProvider                  = new LoomProvider();
  * @param  {[type]} sidechain  [optional]
  * @return {true|object}       return true, if validation of parameters passed, otherwise an object with error message           
  */
-let validate   = function (blockchain, network, sidechain) {
-    if (config.BLOCKCHAINS[blockchain] === undefined) {
-        return {message: "Unsupported blockchain type: "+blockchain};
-    }
-    if (config.NETWORKS[network] === undefined) {
-        return {message: "Unsupported network type: "+network};
-    }
-    if (sidechain !== undefined && config.SIDECHAINS[sidechain] === undefined) {
-        return {message: "Unsupported sidechain type: "+sidechain};
+let getBlockchain   = function (blockchain, network) {
+    for(var i in blockchains) {
+
+        if (blockchains[i].name !== blockchain) {
+            continue;
+        }
+
+        // multichainer supports the given blockchain.
+        // does multichainer has a configuration of blockchain for the given network
+        let config = blockchains[i].config;
+        if (config[network] != undefined) {
+            return true;
+        }
+        else {
+            return {message: `Unsupported network type: ${network}`};
+        }
     }
 
-    return true;
-};
-
-/**
- * Is an instance of the Multichainer that connected to the blockchain with an optional sidechain on network created or not.
- * @param  {string}  blockchain
- * @param  {string}  network   
- * @param  {string}  sidechain 
- * @return {Boolean}           
- */
-let isCreated = function (blockchain, network, sidechain) {
-    let chainer = Multichainer.instance;
-
-    if (chainer === undefined) {
-        return false;
-    }
-    
-    return (chainer.blockchain === blockchain && chainer.network === network && chainer.sidechain === sidechain);
+    return {message: `Unsupported blockchain type: ${blockchain}`};
 };
 
 
@@ -65,41 +61,23 @@ let isCreated = function (blockchain, network, sidechain) {
  * @param {string} network    Blockchain network name: privatenet, testnet etc
  * @param {string} sidechain  [Optional] name of the sidechain to connect to: loom, matic etc
  */
-var Multichainer = function (blockchain, network, sidechain = undefined) {
-    /**
-     * A static instance of the Multichainer.
-     * @type {Multichainer}
-     */
-    let multichainer = Multichainer.instance;
-
-    if (isCreated(blockchain, network, sidechain)) {
-        return chainer;
-    }
-
-    let result = validate(blockchain, network, sidechain);
+var Multichainer = function (blockchain, network) {
+    let result = getBlockchain(blockchain, network);
     if (result !== true) {
         throw result.message;        
     }
 
     this.blockchain         = blockchain;
     this.network            = network;
-    this.sidechain          = sidechain;
-    this.version            = config.VERSION;
-
-    /**
-     * Set an instance
-     * @type {[type]}
-     */
-    Multichainer.instance   = this;
 
     return this;
 };
 
-// Static reference of Multichainer
-Multichainer.instance   = undefined;
-Multichainer.config     = config;
-Multichainer.validate   = validate;
-Multichainer.isCreated  = isCreated;
+
+Multichainer.prototype.addSidechain = function (blockchain, network) {
+
+};
+
 
 Multichainer.prototype.getProvider = function(signer = undefined) {
     if (Multichainer.instance === undefined) {
