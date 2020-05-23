@@ -33,7 +33,7 @@ const config                        = require('./config.js');
  * @param  {[type]} sidechain  [optional]
  * @return {true|object}       return true, if validation of parameters passed, otherwise an object with error message           
  */
-let getBlockchain   = function (blockchain, network) {
+let getBlockchain = function (blockchain, network) {
     for(var i in blockchains) {
 
         if (blockchains[i].name !== blockchain) {
@@ -44,14 +44,14 @@ let getBlockchain   = function (blockchain, network) {
         // does multichainer has a configuration of blockchain for the given network
         let config = blockchains[i].config;
         if (config[network] != undefined) {
-            return true;
+            return blockchains[i];
         }
         else {
-            return {message: `Unsupported network type: ${network}`};
+            return {error: '', message: `Unsupported network type: ${network}`};
         }
     }
 
-    return {message: `Unsupported blockchain type: ${blockchain}`};
+    return {erro: '', message: `Unsupported blockchain type: ${blockchain}`};
 };
 
 
@@ -63,19 +63,34 @@ let getBlockchain   = function (blockchain, network) {
  */
 var Multichainer = function (blockchain, network) {
     let result = getBlockchain(blockchain, network);
-    if (result !== true) {
+    if (result.error !== undefined) {
         throw result.message;        
     }
 
-    this.blockchain         = blockchain;
     this.network            = network;
+    this.config             = result.config;
+    this.utils              = result.utils;
+    this.account            = result.account;
+    this.provider           = result.provider;
+    this.contract           = result.contract;
+    this.smartcontract      = result.smartcontract;
+    this.config             = result.config[network];
+    this.network            = network;
+    this.name               = result.name;
 
     return this;
 };
 
 
 Multichainer.prototype.addSidechain = function (blockchain, network) {
+    this.sidechain          = new Multichainer(blockchain, network);
 
+    if (this.sidechain.config[this.network] === undefined) {
+        throw `The ${this.name}-${this.network} can't be mapped to ${blockchain} ${network}`;
+    }
+    this.sidechain.config = this.sidechain.config[this.network];
+
+    return this.sidechain;
 };
 
 
