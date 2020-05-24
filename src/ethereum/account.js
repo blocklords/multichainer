@@ -91,13 +91,13 @@ Account.prototype.mapTo = function(multichainer, params) {
         throw `Please add account to ${this.multichainer.name}-${this.multichainer.network}`;
     }
 
-    multichainer.account.add().fromDefault(this.default, this.defaultSigningKey);
+    multichainer.account.add().fromMapping(this.default, this.defaultSigningKey);
 
     return this;
 };
 
 
-Account.prototype.fromDefault = function(def, signingKey) {
+Account.prototype.fromMapping = function(def, signingKey) {
     this.default = def;
     this.defaultSigningKey = signingKey;
 };
