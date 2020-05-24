@@ -1,10 +1,14 @@
 const Utils = require('./cryptoutils');
 const fs = require('fs');
 
+
+const ON_MINTING = 'onMinting';
+
 var Contract = function(name, address, type) {
     this.name = name;
     this.address = address;
     this.type = type;
+    this.events = {};
 };
 
 /**
@@ -68,7 +72,17 @@ Contract.prototype.fromAbiFile = function(path, async = false) {
     else {
         this.abi = new web3.eth.Contract(data.abiDefinition, this.address);
     }
-    
+
+    return this;
+};
+
+Contract.prototype.setStreamer = function() {
+    // Get dagger.js object
+    let eventStreamer = Contract.multichainer.provider.getEventStreamer();
+
+    // daggerContract object
+    this.contractStreamer = eventStreamer.contract(this.abi);
+
     return this;
 };
 
