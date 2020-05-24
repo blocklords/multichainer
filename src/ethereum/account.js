@@ -5,7 +5,8 @@ var web3 = new Web3(Web3.givenProvider); // your geth
 const ethUtil = require('ethereumjs-util');
 let ethers = require('ethers');
 
-let Account = function() {
+let Account = function(multichainer) {
+    this.multichainer = multichainer;
     return this;
 };
 
