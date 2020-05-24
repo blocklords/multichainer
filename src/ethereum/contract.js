@@ -122,21 +122,12 @@ Contract.prototype.onMinting = function(callback) {
 
     // Start watching logs
     this.events[ON_MINTING].watch((log) => {
-        console.log('Minted a token');
         if (this.type === Contract.NFT) {
-            console.log(`Owner: ${log.returnValues.to}, token ID ${log.returnValues.tokenId}`);
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
         }
         else if (this.type === Contract.TOKEN) {
-            console.log(`Owner: ${log.returnValues.to}, token ID ${log.returnValues.value}`);
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, amount: parseInt(log.returnValues.value)})
         }
-
-        // log.blockNumber
-        // log.transactionHash
-        // 
-        // callback(log);
-        // log.returnValues.value => 100 GNT
-        // log.returnValues.from => '0x12345678...'
-        // log.returnValues.to => address which value has been transferred to
     });
 };
 
