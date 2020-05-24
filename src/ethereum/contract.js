@@ -44,27 +44,33 @@ Contract.TOKEN = 'erc_20';
 
 /**
  * Loads an abi file to the last added contract
- * @param  {[type]} path [description]
+ * @param  {string} path Abi File path
+ * @param  {bool} path If set async, then file will be loaded asynchronously, and will return a promise
  * @return {[type]}      [description]
  */
-Contract.prototype.fromAbiFile = function(path) {
-    // var mod = this;
+Contract.prototype.fromAbiFile = function(path, async = false) {
+    // todo turn into async
 
-    // TODO turn into async
-    // try {
-        // let rawdata = fs.readFileSync(path);
-        // let data = JSON.parse(rawdata);
-    // }
-    // catch (e) {
-        // throw e;
-    // }
+    // rawdata is a string, data is an object
+    let rawdata, data;
 
-    // if (web3.version.getNetwork !== undefined) {
-        // resolve(loomWeb3.eth.contract(data.json.abi).at(address));
-    // }
-    // else {
-    // return new provider.eth.Contract(data.abi, address);
-    // }
+    try {
+        rawdata = fs.readFileSync(path);
+        data = JSON.parse(rawdata);
+    }
+    catch (e) {
+        throw e;
+    }
+
+    let web3 = Contract.multichainer.provider.get();
+    if (web3.version.getNetwork !== undefined) {
+        this.abi = web3.eth.contract(data.json.abi).at(this.address);
+    }
+    else {
+        this.abi = new web3.eth.Contract(data.abiDefinition, this.address);
+    }
+    
+    return this;
 };
 
 module.exports = Contract;
