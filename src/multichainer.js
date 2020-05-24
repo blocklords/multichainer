@@ -67,19 +67,21 @@ var Multichainer = function (blockchain, network) {
         throw result.message;        
     }
 
+    this.name               = result.name;
     this.network            = network;
-    this.config             = result.config;
+
+    this.config             = result.config[network];
+
     this.utils              = result.utils;
     this.account            = new result.Account(this);
-    this.provider           = result.provider;
+    this.provider           = new result.Provider(this);
+    
     this.contract           = result.contract;
     // Contract is a class that generates a contract object for each contract
     // We set a global multichainer reference that will be used by all contract objects
     this.contract.multichainer = this;
+
     this.smartcontract      = result.smartcontract;
-    this.config             = result.config[network];
-    this.network            = network;
-    this.name               = result.name;
 
     return this;
 };
