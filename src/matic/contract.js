@@ -2,75 +2,79 @@ const Utils = require('./cryptoutils');
 const loom = require('loom-js');
 const fs = require('fs');
 
-// To create a contract
-var Contract = function() {};
+var Contract = function(name, address, type) {
+    this.name = name;
+    this.address = address;
+    this.type = type;
+};
 
-// @param   string      path - ABI file path
-Contract.fromAbiFile = function(contractAddress, path, provider) {
-    var mod = this;
+/**
+ * Add a new contract to the multichainer
+ * @param {String} params.name  An alias of contract 
+ */
+Contract.add = function(params) {
+    if (params.type === undefined) {
+        param.type = this.CONTRACT;
+    }
 
-    let data = undefined;
+    if (params.name === undefined) {
+        throw 'Should be given an alias of contract. Missing "name" parameter';
+    }
+    if (Contract.multichainer[params.name] !== undefined) {
+        throw `${params.name} is a multichainer keyword, or a contract with the name ${params.name} was initiated already`;
+    }
 
-    // TODO turn into async
+
+    let contract = new Contract(params.name, params.address, params.type);
+
+    // An alias of contract to use to interact with
+    // For example, if contract name is testContract.
+    // Then users could interact with testContract.withdraw by
+    // mc.testContract.methods.withdraw({})
+    Contract.multichainer[params.name] = contract;
+
+    return contract;
+}
+
+
+Contract.multichainer = undefined;
+Contract.NFT = 'erc_721';
+Contract.CONTRACT = 'contract';
+Contract.TOKEN = 'erc_20';
+
+/**
+ * Loads an abi file to the last added contract
+ * @param  {string} path Abi File path
+ * @param  {bool} path If set async, then file will be loaded asynchronously, and will return a promise
+ * @return {[type]}      [description]
+ */
+Contract.prototype.fromAbiFile = function(path, async = false) {
+    // todo turn into async
+
+    // rawdata is a string, data is an object
+    let rawdata, data;
+
     try {
-        let rawdata = fs.readFileSync(path);
+        rawdata = fs.readFileSync(path);
         data = JSON.parse(rawdata);
     }
     catch (e) {
         throw e;
     }
 
-    // if (web3.version.getNetwork !== undefined) {
-        // resolve(loomWeb3.eth.contract(data.json.abi).at(contractAddress));
-    // }
-    // else {
-    return new provider.eth.Contract(data.abi, contractAddress);
-    // }
-};
+    let web3 = Contract.multichainer.provider.get();
+    if (web3.version.getNetwork !== undefined) {
+        this.abi = web3.eth.contract(data.json.abi).at(this.address);
+    }
+    else {
+        this.abi = new web3.eth.Contract(data.abiDefinition, this.address);
+    }
     
-    // let gatewayAddress = cc.zz.LoginData.getCurrentBlockchainNetworkData().gateway;
-Contract.loadGatewayContract = function(ethParams) {
-        let mod = this;
-
-        let promise = new Promise((resolve, reject) => {
-            let version = cc.zz.LoginData.getCurrentBlockchainNetworkData().gatewayVersion;
-
-            const ethersProvider = new ethers.providers.Web3Provider(ethParams.currentProvider)
-            const signer = ethersProvider.getSigner();
-
-            loom.createEthereumGatewayAsync(version, ethParams.gatewayAddress, ethersProvider)
-           .then(res => {
-                resolve(res.withSigner(signer));
-            }).catch(e => {
-                cc.error(e);
-                reject(e);
-            }); 
-        });
-
-        return promise;
+    return this;
 };
 
-Contract.loadLoomGatewayContract = function(apiPath, loomParams, ethParams, loomWeb3) {
-        let mod = this;
-
-        // var promise = new Promise((resolve, reject) => {
-        let { privateKey, publicKey } = Utils.generateKeyPair();
-
-        const loomAccount = Utils.generateAccountFromPublicKey({chainId: loomParams.chainId, publicKey: publicKey});
-                
-        let client = Utils.generateClient(loomParams);
-
-        let ethersProvider = new ethers.providers.Web3Provider(ethParams.currentProvider);
-        const signer = ethersProvider.getSigner();
-
-        const ethAccount = Utils.generateAccount(ethParams);
-
-        client.txMiddleware = [
-            new loom.NonceTxMiddleware(ethAccount, client), 
-            new loom.SignedEthTxMiddleware(signer) 
-        ];
-
-        return loom.Contracts.TransferGateway.createAsync(client, ethAccount);
+Contract.prototype.mapTo = function(contract) {
+    // mapping
 };
 
 module.exports = Contract;

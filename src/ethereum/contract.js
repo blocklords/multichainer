@@ -1,7 +1,6 @@
 const Utils = require('./cryptoutils');
 const fs = require('fs');
 
-// no constructor
 var Contract = function(name, address, type) {
     this.name = name;
     this.address = address;
@@ -71,6 +70,11 @@ Contract.prototype.fromAbiFile = function(path, async = false) {
     }
     
     return this;
+};
+
+
+Contract.prototype.mapTo = function(contract) {
+    // mapping
 };
 
 module.exports = Contract;
