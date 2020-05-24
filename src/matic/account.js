@@ -101,6 +101,8 @@ Account.prototype.mapTo = function(multichainer, params) {
 Account.prototype.fromMapping = function(def, signingKey) {
     this.default = def;
     this.defaultSigningKey = signingKey;
+
+    this.multichainer.provider.setWallet(signingKey.privateKey);
 };
 
 
