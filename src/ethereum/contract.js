@@ -91,4 +91,60 @@ Contract.prototype.mapTo = function(contract) {
     // mapping
 };
 
+Contract.prototype.on = function(eventName, filter, callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    };
+
+    // if (this.events[eventName] !== undefined) {
+        // ""
+    // }
+    // this.events[eventName] = filter;
+};
+
+Contract.prototype.onMinting = function(callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    }
+
+    if (callback == undefined) {
+        throw `Callback function wasn't passed for onMinting event`;
+    }
+    if (this.events[ON_MINTING] !== undefined) {
+        throw `Minting event is already listened. Please remove that event first`;
+    }
+    if (this.type !== Contract.NFT && this.type !== Contract.TOKEN) {
+        throw `Minting event is only supported for ${Contract.NFT}, ${Contract.TOKEN} contracts. Your contract type is ${this.type}`;
+    }
+
+    // Get subscription filter
+    this.events[ON_MINTING] = this.contractStreamer.events.Transfer({filter: { from: '0x0000000000000000000000000000000000000000' }, room: 'latest'});
+
+    // Start watching logs
+    this.events[ON_MINTING].watch((log) => {
+        console.log('Minted a token');
+        if (this.type === Contract.NFT) {
+            console.log(`Owner: ${log.returnValues.to}, token ID ${log.returnValues.tokenId}`);
+        }
+        else if (this.type === Contract.TOKEN) {
+            console.log(`Owner: ${log.returnValues.to}, token ID ${log.returnValues.value}`);
+        }
+
+        // log.blockNumber
+        // log.transactionHash
+        // 
+        // callback(log);
+        // log.returnValues.value => 100 GNT
+        // log.returnValues.from => '0x12345678...'
+        // log.returnValues.to => address which value has been transferred to
+    });
+};
+
+Contract.prototype.unMinting = function () {
+    if (this.events[ON_MINTING] !== undefined) {
+        this.events[ON_MINTING].stopWatching();
+        this.events[ON_MINTING] = undefined;
+    }
+};
+
 module.exports = Contract;
