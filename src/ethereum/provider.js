@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+var Dagger = require("@maticnetwork/eth-dagger");
 
 var Provider = function (multichainer) {
     this.multichainer = multichainer;
@@ -9,7 +10,17 @@ var Provider = function (multichainer) {
 
     this.web3 = new Web3(new Web3.providers.HttpProvider(this.multichainer.config.endpoint))
 
+    this.setEvenStreamer();
+
     return this;
+};
+
+Provider.prototype.setEvenStreamer = function() {
+	this.eventStreamer = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
+};
+
+Provider.prototype.getEventStreamer = function() {
+	return this.eventStreamer;
 };
 
 Provider.prototype.get = function() {
