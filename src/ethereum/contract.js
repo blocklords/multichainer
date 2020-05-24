@@ -3,6 +3,7 @@ const fs = require('fs');
 
 
 const ON_MINTING = 'onMinting';
+const ON_TRANSFER_TO = 'onTransfer_';
 
 var Contract = function(name, address, type) {
     this.name = name;
@@ -96,9 +97,9 @@ Contract.prototype.on = function(eventName, filter, callback) {
         this.setStreamer();
     };
 
-    // if (this.events[eventName] !== undefined) {
-        // ""
-    // }
+    if (this.events[eventName] !== undefined) {
+        throw "${eventName} is listened already";
+    }
     // this.events[eventName] = filter;
 };
 
@@ -136,6 +137,29 @@ Contract.prototype.unMinting = function () {
         this.events[ON_MINTING].stopWatching();
         this.events[ON_MINTING] = undefined;
     }
+};
+
+
+Contract.prototype.onTransferTo = function(address, callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    };
+
+    let eventName = ON_TRANSFER_TO + address;
+    if (this.events[eventName] !== undefined) {
+        throw "${eventName} is listened already";
+    }
+
+    this.events[eventName] = this.contractStreamer.events.Transfer({filter: { to: address }, room: 'latest'});
+
+    this.events[eventName].watch((log) => {
+        if (this.type === Contract.NFT) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
+        }
+        else if (this.type === Contract.TOKEN) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, amount: parseInt(log.returnValues.value)})
+        }
+    });
 };
 
 module.exports = Contract;

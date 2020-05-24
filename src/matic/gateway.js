@@ -1,25 +1,14 @@
-/**
- *  Multichainer is a library that gives a single interface to connect to the different blockchains.
- *
- *  Written on Node.js
- * 
- *  Forget about web3, matic.js, loomjs, neojs. Use just Multichainer to make your DAPP crossplatformed
- */
-
 
 var Gateway = function(mainchain, sidechain) {
     this.mainchain = mainchain;
     this.sidechain = sidechain;
 };
 
-Gateway.prototype.onTransfer = function(params) {
+Gateway.prototype.onTransfer = function(params, callback) {
     if (params.from === this.mainchain && params.to === this.sidechain) {
-        let eventName = `transfer_from_${this.mainchain.name}_${this.mainchain.network}_to_${this.sidechain.name}_${this.sidechain.network}`;
-        console.log('Deposit token: '+eventName);
-
         let depositManager = this.sidechain.config.mainNetwork.Contracts.DepositManagerProxy;
 
-        console.log(`Player transfers token to ${depositManager}`);
+        this.mainchain[params.name].onTransferTo(depositManager, callback);
 
         // deposit token
         return this;
