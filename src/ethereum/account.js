@@ -78,6 +78,32 @@ Account.prototype.fromPrivateKey = function(keyPath) {
 
 
 /**
+ * Set the default account as a default account of another multichainer.
+ * This method is useful to map account to the sidechain.
+ * As any blockchain, sidechain objects are driven from multichainer object.
+ * 
+ * @param  {Multichainer.js} multichainer Another blockchain parameters
+ * @param  {Object} params       additonal parameters used by multichainer
+ * @return {account.js}              this
+ */
+Account.prototype.mapTo = function(multichainer, params) {
+    if (this.default === undefined) {
+        throw `Please add account to ${this.multichainer.name}-${this.multichainer.network}`;
+    }
+
+    multichainer.account.add().fromDefault(this.default, this.defaultSigningKey);
+
+    return this;
+};
+
+
+Account.prototype.fromDefault = function(def, signingKey) {
+    this.default = def;
+    this.defaultSigningKey = signingKey;
+};
+
+
+/**
  * Creates an account of a given type from a privatekey
  * And attaches 
  */

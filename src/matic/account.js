@@ -70,15 +70,39 @@ Account.prototype.fromPrivateKey = function(keyPath) {
     catch (e) {
         throw (e);
     }
+
     let ethAccount = new ethers.Wallet(keyString);
-    // let ethAccount = web3.eth.accounts.wallet.add(keyString);
 
-    let account = new Account(ethAccount.signingKey.address, ethAccount.signingKey.privateKey, ethAccount.signingKey.publicKey);
+    this.setDefault (ethAccount.signingKey);
 
-    account.localObject = ethAccount;
-
-    return account;
+    return this;
 };
+
+/**
+ * Set the default account as a default account of another multichainer.
+ * This method is useful to map account to the sidechain.
+ * As any blockchain, sidechain objects are driven from multichainer object.
+ * 
+ * @param  {Multichainer.js} multichainer Another blockchain parameters
+ * @param  {Object} params       additonal parameters used by multichainer
+ * @return {account.js}              this
+ */
+Account.prototype.mapTo = function(multichainer, params) {
+    if (this.default === undefined) {
+        throw `Please add account to ${this.multichainer.name}-${this.multichainer.network}`;
+    }
+
+    multichainer.account.add().fromDefault(this.default, this.defaultSigningKey);
+
+    return this;
+};
+
+
+Account.prototype.fromDefault = function(def, signingKey) {
+    this.default = def;
+    this.defaultSigningKey = signingKey;
+};
+
 
 
 /**
