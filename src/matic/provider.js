@@ -27,6 +27,9 @@ Provider.prototype.init = async function () {
       registry: MainNetwork.Contracts.Registry
     });
 
+    this.multichainer.config.maticNetwork = MaticNetwork;
+    this.multichainer.config.mainNetwork = MainNetwork;
+
     // establish a connection. this is an asynchronous function.
     // therefore has to be invoked from outside of constructor
     await this.matic.initialize();
