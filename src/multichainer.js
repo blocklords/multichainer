@@ -97,7 +97,10 @@ Multichainer.prototype.addSidechain = function (blockchain, network) {
     if (mapping[this.network] === undefined) {
         throw `The ${this.name}-${this.network} can't be mapped to ${blockchain}-${network}`;
     }
+    
     this.sidechain.config = mapping[this.network];
+
+    this.sidechain.provider.init();
 
     return this.sidechain;
 };

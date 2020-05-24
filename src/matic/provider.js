@@ -1,82 +1,42 @@
-const loom = require('loom-js');
-const Web3 = require('web3');
+const Network = require("@maticnetwork/meta/network");
+const Matic = require("@maticnetwork/maticjs").default;
 
-var Provider = function () {};
-
-// const writeUrl = 'http://extdev-plasma-us1.dappchains.com:80/rpc'
-// const readUrl = 'http://extdev-plasma-us1.dappchains.com:80/query'
-
-const CONFIG = {
-    'mainnet': {
-        writeUrl : 'ws://127.0.0.1:46658/websocket',
-        readUrl : 'ws://127.0.0.1:46658/queryws',
-        networkId : 'default'
-    },
-    'testnet': {
-        writeUrl : 'ws://extdev-plasma-us1.dappchains.com:80/websocket',
-        readUrl : 'ws://extdev-plasma-us1.dappchains.com:80/queryws',
-        networkId : 'extdev-plasma-us1'
-    },
-    'privatenet': {
-        writeUrl : 'ws://extdev-plasma-us1.dappchains.com:80/websocket',
-        readUrl : 'ws://extdev-plasma-us1.dappchains.com:80/queryws',
-        networkId : 'extdev-plasma-us1'
-    }
+var Provider = function (multichainer) {
+    this.multichainer = multichainer;
+    return this;
 };
 
-// Get Interactor with a node. Web3 instance for example.
-// This is default version returning only for sidechain
-//
-// @param account - Multichainer/Account loom account
-Provider.prototype.getProvider = function(network, account = undefined) {
-    if (CONFIG[network] === undefined) {
-        throw "Unsupported Loom network type: "+network;
-    }
-
-    const {writeUrl, readUrl, networkId} = CONFIG[network];
-
-    let client = new loom.Client(networkId, writeUrl, readUrl)
-
-    if (account === undefined) {
-        let privateKey = loom.CryptoUtils.generatePrivateKey()
-
-        return new Web3(new loom.LoomProvider(client, privateKey))
-    }
-    else
-    {
-        client.txMiddleware = [
-            new loom.NonceTxMiddleware(account.publicKey, client),
-            new loom.SignedTxMiddleware(account.privateKey)
-        ];
-
-        return new Web3(new loom.LoomProvider(client, account.privateKey))
-    }
+Provider.prototype.get = function() {
+    return this.web3;
 };
 
-// Provider.prototype.getProvider = function(loomParams, ethParams) {
-//             const ethAccount = Utils.generateAccount(ethParams);
 
-//             const { privateKey, publicKey } = Utils.generateKeyPair();
+Provider.prototype.init = async function () {
+    const network = new Network(this.multichainer.config.network, this.multichainer.config.version);
 
-//             const client = Utils.generateClient(loomParams);
+    const MaticNetwork = network.Matic;
+    const MainNetwork = network.Main;
 
-//             client.txMiddleware = [
-//                 new loom.NonceTxMiddleware(publicKey, client),
-//                 new loom.SignedTxMiddleware(privateKey)
-//             ];
+    // const from = config.from; // from address
+    this.matic = new Matic({
+      maticProvider: MaticNetwork.RPC,
+      parentProvider: MainNetwork.RPC,
+      rootChain: MainNetwork.Contracts.RootChain,
+      withdrawManager: MainNetwork.Contracts.WithdrawManagerProxy,
+      depositManager: MainNetwork.Contracts.DepositManagerProxy,
+      registry: MainNetwork.Contracts.Registry
+    });
 
-//             const ethersProvider = new ethers.providers.Web3Provider( ethParams.currentProvider );
-//             const signer = ethersProvider.getSigner();
+    // establish a connection. this is an asynchronous function.
+    // therefore has to be invoked from outside of constructor
+    await this.matic.initialize();
+    // await matic.setWallet(config.privateKey);
 
-//             let loomProvider = new loom.LoomProvider(client, privateKey)
-//             loomProvider.callerChainId = ethParams.chainId;
-//             loomProvider.setMiddlewaresForAddress(ethAccount.local.toString(), [
-//                 new loom.NonceTxMiddleware(ethAccount, client),
-//                 new loom.SignedEthTxMiddleware(signer)
-//             ]);
+    return this;
+};
 
-//             // this.web3 = new Web3(loomProvider);
-//             return new Web3(loomProvider);
-//         };
+Provider.prototype.setWallet = async function(privateKey) {
+    await this.matic.setWallet(privateKey);
+};
 
 module.exports = Provider;
