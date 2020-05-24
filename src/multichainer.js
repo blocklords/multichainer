@@ -75,7 +75,8 @@ var Multichainer = function (blockchain, network) {
     this.utils              = result.utils;
     this.account            = new result.Account(this);
     this.provider           = new result.Provider(this);
-    
+    this.Gateway            = result.Gateway;
+
     this.contract           = result.contract;
     // Contract is a class that generates a contract object for each contract
     // We set a global multichainer reference that will be used by all contract objects
@@ -101,6 +102,8 @@ Multichainer.prototype.addSidechain = function (blockchain, network) {
     this.sidechain.config = mapping[this.network];
 
     this.sidechain.provider.init();
+
+    this.gateway = new this.sidechain.Gateway(this, this.sidechain);
 
     return this.sidechain;
 };
@@ -129,5 +132,75 @@ Multichainer.prototype.getProviderWithSigner = function(signer, signerType) {
         return loomProvider.getProviderWithSigner(Multichainer.instance.network, signer, signerType);
     }
 };
+
+
+/***************************************************************
+ *  Multichainer's crosschain part
+ *
+ *
+ * *************************************************************/
+
+Multichainer.prototype.transfer = function(params) {
+    if (params.name === undefined) {
+        throw `Please pass the token 'name' to transfer`;
+    }
+    else if (this[params.name] === undefined) {
+        throw `Multichainer hasn't registered a ${params.name} token`;
+    }
+
+    // transferring nft
+    if (params.id !== undefined) {
+        if (this[params.name].type !== this.contract.NFT) {
+            throw `The ${params.name} is a '${this.contract.NFT}', but transfer method is missing 'id' parameter`;
+        }
+        this.transferType = this.contract.NFT;
+        this.transferValue = params.id;
+    }
+    else if (params.amount !== undefined) {
+        if (this[params.name].type !== this.contract.TOKEN) {
+            throw `The ${params.name} is a '${this.contract.TOKEN}', but transfer method is missing 'amount' parameter`;
+        }
+        this.transferType = this.contract.TOKEN;
+        this.transferValue = params.amount;
+    }
+    else {
+        throw `Couldn't detect a transferring data. Please set either 'id' param for NFTs or 'amount' param for tokens`;
+    }
+
+    return this;
+};
+
+Multichainer.prototype.from = function(multichainer) {
+    if (multichainer === this) {
+        console.log(`Deposit from ${this.name}-${this.network}`);
+    }
+    else if (multichainer === this.sidechain) {
+        console.log(`Deposit from ${this.sidechain.name}-${this.sidechain.network}`);
+    }
+
+    this.transferFrom = this;
+
+    return this;
+};
+
+Multichainer.prototype.to = function (multichainer) {
+    if (multichainer === this) {
+        console.log(`to ${this.name}-${this.network}`);
+    }
+    else if (multichainer === this.sidechain) {
+        console.log(`To ${this.sidechain.name}-${this.sidechain.network}`);
+    }
+
+    this.transferTo = this.sidechain;
+
+    return this;
+};
+
+
+// Invoke when import was done
+
+Multichainer.prototype.onTransfer = function(params) {
+    return this.gateway.onTransfer(params);
+}
 
 module.exports = Multichainer;
