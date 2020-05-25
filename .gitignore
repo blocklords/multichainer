@@ -32,3 +32,5 @@ node_modules
 private
 test
 abi
+
+package-lock.json
