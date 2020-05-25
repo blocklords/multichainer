@@ -17,13 +17,13 @@
   "license": "ISC",
   "dependencies": {
     "@maticnetwork/eth-dagger": "0.0.3",
-    "@maticnetwork/maticjs": "^2.0.0-beta.11",
+    "@maticnetwork/maticjs": "^2.0.0-beta.12",
     "@maticnetwork/meta": "^1.0.3",
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^6.2.0",
     "ethers": "^4.0.44",
     "loom-js": "^1.75.1",
     "tweetnacl": "^1.0.2",
-    "web3": "^1.2.5-rc.0"
+    "web3": "^1.2.8"
   }
 }
