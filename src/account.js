@@ -1,6 +1,6 @@
 const Multichainer = require('./multichainer.js');
 const { Account: LoomAccount } = require ('./loom/index.js');
-const { Account: EthAccount } = require ('./eth/index.js');
+const { Account: EthAccount } = require ('./ethereum/index.js');
 
 var Account = function(address, accountType) {
     this.address = address.toString();

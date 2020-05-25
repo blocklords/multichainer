@@ -84,6 +84,8 @@ var Multichainer = function (blockchain, network) {
 
     this.smartcontract      = result.smartcontract;
 
+    this.gateways           = {};
+
     return this;
 };
 
@@ -199,8 +201,8 @@ Multichainer.prototype.to = function (multichainer) {
 
 // Invoke when import was done
 
-Multichainer.prototype.onTransfer = function(params) {
-    return this.gateway.onTransfer(params);
+Multichainer.prototype.onTransfer = function(params, callback) {
+    return this.gateway.onTransfer(params, callback);
 }
 
 module.exports = Multichainer;

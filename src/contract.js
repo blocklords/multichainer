@@ -2,25 +2,32 @@ const fs = require('fs');
 const loom = require('loom-js');
 const Multichainer = require('./multichainer.js');
 const Utils = require('./cryptoutils');
+const Config = require('./config.js');
 const { Contract: LoomContract } = require('./loom/index.js');
+const { Contract: EthereumContract } = require('./ethereum/index.js');
 
 // To create a contract
 var Contract = function(address, instance) {
-    this.address = address;
-    this.instance = instance;
+    this.address    = address;
+    this.instance   = instance;
 };
 
 // @param   string      path - ABI file path
-Contract.fromAbiFile = function(address, path, provider) {
-    if (Multichainer.instance === undefined) {
-        throw "Multichainer not instantiniated";
+Contract.fromAbiFile = function(address, path, blockhainConfig, provider) {
+    let instance = undefined;
+
+    if (blockhainConfig.blockchain == Config.BLOCKCHAINS.ethereum && blockhainConfig.sidechain == Config.SIDECHAINS.loom) {
+        instance = LoomContract.fromAbiFile(address, path, provider);
+
+    }
+    else if (blockhainConfig.blockchain == Config.BLOCKCHAINS.ethereum && blockhainConfig.sidechain === undefined) {
+        instance = EthereumContract.fromAbiFile(address, path, blockhainConfig);
+    }
+    else {
+        throw "Not implemented";
     }
 
-    if (Multichainer.instance.blockchain == 'ethereum' && Multichainer.instance.sidechain == 'loom') {
-        let loomInstance = LoomContract.fromAbiFile(address, path, provider);
-
-        return new Contract(address, loomInstance);
-    }
+    return new Contract(address, instance);
 };
     
     // let gatewayAddress = cc.zz.LoginData.getCurrentBlockchainNetworkData().gateway;
