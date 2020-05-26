@@ -10,12 +10,12 @@ var Provider = function (multichainer) {
 
     this.web3 = new Web3(new Web3.providers.HttpProvider(this.multichainer.config.endpoint))
 
-    this.setEvenStreamer();
+    this.setEventStreamer();
 
     return this;
 };
 
-Provider.prototype.setEvenStreamer = function() {
+Provider.prototype.setEventStreamer = function() {
 	this.eventStreamer = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
 };
 
