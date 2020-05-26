@@ -8,7 +8,9 @@ Gateway.prototype.onTransfer = function(params, callback) {
     if (params.from === this.mainchain && params.to === this.sidechain) {
         let depositManager = this.sidechain.config.mainNetwork.Contracts.DepositManagerProxy;
 
-        this.mainchain[params.name].onTransferTo(depositManager, callback);
+        this.mainchain[params.name].onTransferTo(depositManager, function(log){
+            callback({tokenID: log.tokenID, owner: log.from, blockNumber: log.blockNumber, txid: log.txid});
+        });
 
         // deposit token
         return this;
