@@ -117,9 +117,15 @@ Contract.prototype.on = function(eventName, filter, callback) {
     };
 
     if (this.events[eventName] !== undefined) {
-        throw "${eventName} is listened already";
+        throw `${eventName} is listened already`;
     }
-    // this.events[eventName] = filter;
+
+    this.events[eventName] = this.contractStreamer.events[eventName]({filter: filter, room: 'latest'});
+
+    // Start watching logs
+    this.events[eventName].watch(function(log){
+        callback(log);
+    }.bind(this));
 };
 
 Contract.prototype.onMinting = function(callback) {
