@@ -56,9 +56,6 @@ Provider.prototype.setWallet = async function(privateKey) {
 
 Provider.prototype.setEventStreamer = function() {
   let dagger = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
-  
-  console.log(dagger);
-  console.log(this.multichainer.config.daggerEndpoint);
 
   this.eventStreamer = dagger;
 };
