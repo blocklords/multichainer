@@ -112,16 +112,7 @@ Multichainer.prototype.addSidechain = async function (blockchain, network) {
 
 
 Multichainer.prototype.getProvider = function(signer = undefined) {
-    if (Multichainer.instance === undefined) {
-        throw "Multichainer wasn't instantiated.";
-    }
-
-    // Loom?
-    if (this.blockchain == config.BLOCKCHAINS.ethereum && this.sidechain == config.SIDECHAINS.loom) {
-        return loomProvider.getProvider(Multichainer.instance.network, signer);
-    }
-
-    return undefined;
+    return this.provider.get();
 };
 
 
