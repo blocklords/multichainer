@@ -13,7 +13,8 @@ let test_v3 = {
 		'ropsten': {
 		  	// used to set up matic network
 			"network": "testnet",
-			"version": "v3"
+			"version": "v3",
+			'daggerEndpoint': 'https://testnetv3-dagger.matic.network'
 		}
 	}
 }

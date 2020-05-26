@@ -1,8 +1,16 @@
 const Network = require("@maticnetwork/meta/network");
 const Matic = require("@maticnetwork/maticjs").default;
+const Web3 = require('web3');
+var Dagger = require("@maticnetwork/eth-dagger");
 
+
+/**
+ * Sidechains are initiated manually. Because sidechains rely on privatekeys
+ * @param {[type]} multichainer [description]
+ */
 var Provider = function (multichainer) {
     this.multichainer = multichainer;
+
     return this;
 };
 
@@ -17,9 +25,11 @@ Provider.prototype.init = async function () {
     const MaticNetwork = network.Matic;
     const MainNetwork = network.Main;
 
+    this.web3 = new Web3(new Web3.providers.HttpProvider(MaticNetwork.RPC))
+
     // const from = config.from; // from address
     this.matic = new Matic({
-      maticProvider: MaticNetwork.RPC,
+      maticProvider: this.web3,
       parentProvider: MainNetwork.RPC,
       rootChain: MainNetwork.Contracts.RootChain,
       withdrawManager: MainNetwork.Contracts.WithdrawManagerProxy,
@@ -33,7 +43,8 @@ Provider.prototype.init = async function () {
     // establish a connection. this is an asynchronous function.
     // therefore has to be invoked from outside of constructor
     await this.matic.initialize();
-    // await matic.setWallet(config.privateKey);
+
+    this.setEventStreamer();
 
     return this;
 };
@@ -41,5 +52,20 @@ Provider.prototype.init = async function () {
 Provider.prototype.setWallet = async function(privateKey) {
     await this.matic.setWallet(privateKey);
 };
+
+
+Provider.prototype.setEventStreamer = function() {
+  let dagger = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
+  
+  console.log(dagger);
+  console.log(this.multichainer.config.daggerEndpoint);
+
+  this.eventStreamer = dagger;
+};
+
+Provider.prototype.getEventStreamer = function() {
+  return this.eventStreamer;
+};
+
 
 module.exports = Provider;
