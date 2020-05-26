@@ -90,7 +90,7 @@ var Multichainer = function (blockchain, network) {
 };
 
 
-Multichainer.prototype.addSidechain = function (blockchain, network) {
+Multichainer.prototype.addSidechain = async function (blockchain, network) {
     this.sidechain          = new Multichainer(blockchain, network);
 
     let mapping = this.sidechain.config[this.name];
@@ -103,7 +103,7 @@ Multichainer.prototype.addSidechain = function (blockchain, network) {
     
     this.sidechain.config = mapping[this.network];
 
-    this.sidechain.provider.init();
+    await this.sidechain.provider.init();
 
     this.gateway = new this.sidechain.Gateway(this, this.sidechain);
 
