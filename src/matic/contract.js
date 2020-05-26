@@ -1,11 +1,23 @@
 const Utils = require('./cryptoutils');
-const loom = require('loom-js');
+const Network = require("@maticnetwork/meta/network");
 const fs = require('fs');
 
 var Contract = function(name, address, type) {
     this.name = name;
     this.address = address;
     this.type = type;
+    this.events = {};
+
+    const network = new Network(Contract.multichainer.config.network, Contract.multichainer.config.version);
+
+    if (type === Contract.NFT) {
+        let abi = network.abi(Contract.multichainer.config.NFT_abi);
+        this.fromAbi(abi);
+    }
+    else if ( type === Contract.TOKEN ) {
+        let abi = network.abi(Contract.multichainer.config.TOKEN_abi);
+        this.fromAbi(abi);
+    }
 };
 
 /**
@@ -49,7 +61,9 @@ Contract.TOKEN = 'erc_20';
  * @return {[type]}      [description]
  */
 Contract.prototype.fromAbiFile = function(path, async = false) {
-    // todo turn into async
+    if (this.type === Contract.NFT || this.type === Contract.TOKEN) {
+        console.warn(`\n\nWarning! You are going to rewrite the ABI file for ${this.type}.\nThe ABI for ${this.type} is set automatically by ${Contract.multichainer.name} standard JSON files. Rewriting ABI file could potentially broke the Contract Event Streamer\n\n`);
+    }
 
     // rawdata is a string, data is an object
     let rawdata, data;
@@ -62,19 +76,110 @@ Contract.prototype.fromAbiFile = function(path, async = false) {
         throw e;
     }
 
-    let web3 = Contract.multichainer.provider.get();
+    return this.fromAbi(data.abi);
+};
+
+Contract.prototype.fromAbi = function(abi, async = false) {
+    let web3 = Contract.multichainer.getProvider();
     if (web3.version.getNetwork !== undefined) {
-        this.abi = web3.eth.contract(data.json.abi).at(this.address);
+        this.abi = web3.eth.contract(abi).at(this.address);
     }
     else {
-        this.abi = new web3.eth.Contract(data.abiDefinition, this.address);
+        this.abi = new web3.eth.Contract(abi, this.address);
     }
     
     return this;
 };
 
 Contract.prototype.mapTo = function(contract) {
-    // mapping
+    throw `${Contract.multichainer.name} is a sidechain. Sidechains can not be mapped to another chains. If you want to map this contract, then call the mainchain's mapTo()`;
 };
+
+
+/////////////////////////////
+// CONTRACT EVENT STREAMER //
+/////////////////////////////
+
+Contract.prototype.setStreamer = function() {
+    // Get dagger.js object
+    let eventStreamer = Contract.multichainer.provider.getEventStreamer();
+
+    // daggerContract object
+    this.contractStreamer = eventStreamer.contract(this.abi);
+
+    return this;
+};
+
+
+Contract.prototype.on = function(eventName, filter, callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    };
+
+    if (this.events[eventName] !== undefined) {
+        throw "${eventName} is listened already";
+    }
+    // this.events[eventName] = filter;
+};
+
+Contract.prototype.onMinting = function(callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    }
+
+    if (callback == undefined) {
+        throw `Callback function wasn't passed for onMinting event`;
+    }
+    if (this.events[ON_MINTING] !== undefined) {
+        throw `Minting event is already listened. Please remove that event first`;
+    }
+    if (this.type !== Contract.NFT && this.type !== Contract.TOKEN) {
+        throw `Minting event is only supported for ${Contract.NFT}, ${Contract.TOKEN} contracts. Your contract type is ${this.type}`;
+    }
+
+    // Get subscription filter
+    this.events[ON_MINTING] = this.contractStreamer.events.Transfer({filter: { from: '0x0000000000000000000000000000000000000000' }, room: 'latest'});
+
+    // Start watching logs
+    this.events[ON_MINTING].watch((log) => {
+        if (this.type === Contract.NFT) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
+        }
+        else if (this.type === Contract.TOKEN) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, owner: log.returnValues.to, amount: parseInt(log.returnValues.value)})
+        }
+    });
+};
+
+Contract.prototype.unMinting = function () {
+    if (this.events[ON_MINTING] !== undefined) {
+        this.events[ON_MINTING].stopWatching();
+        this.events[ON_MINTING] = undefined;
+    }
+};
+
+
+Contract.prototype.onTransferTo = function(address, callback) {
+    if (this.contractStreamer === undefined) {
+        this.setStreamer();
+    };
+
+    let eventName = ON_TRANSFER_TO + address;
+    if (this.events[eventName] !== undefined) {
+        throw "${eventName} is listened already";
+    }
+
+    this.events[eventName] = this.contractStreamer.events.Transfer({filter: { to: address }, room: 'latest'});
+
+    this.events[eventName].watch((log) => {
+        if (this.type === Contract.NFT) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, from: log.returnValues.from, to: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
+        }
+        else if (this.type === Contract.TOKEN) {
+            callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, from: log.returnValues.from, to: log.returnValues.to, amount: parseInt(log.returnValues.value)})
+        }
+    });
+};
+
 
 module.exports = Contract;

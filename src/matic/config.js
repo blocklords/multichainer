@@ -14,7 +14,9 @@ let test_v3 = {
 		  	// used to set up matic network
 			"network": "testnet",
 			"version": "v3",
-			'daggerEndpoint': 'https://testnetv3-dagger.matic.network'
+			'daggerEndpoint': 'https://testnetv3-dagger.matic.network',
+			'NFT_abi': 'ChildERC721',
+			'TOKEN_abi': 'ChildERC20'
 		}
 	}
 }
