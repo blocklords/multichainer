@@ -1,10 +1,26 @@
+const Network = require("@maticnetwork/meta/network");
 
 var Gateway = function(mainchain, sidechain) {
     this.mainchain = mainchain;
     this.sidechain = sidechain;
 };
 
+/**
+ * Invokes an event on each state of fungible token transfer, non fungible token (NFT) transfer
+ * between two mainchain and sidechain. 
+ * If `from` is set to mainchain, and `to` set to sidechain, then `onTransfer` will track token import from mainchain to sidechain.
+ * If `from` is set to sidechain, and `to` set to mainchain, then `onTransfer` will track token export from sidechain to mainchain.
+ * Transfer between mainchains is not supported. Transfer between sidechains is not supported.
+ * 
+ * @param  {Multichainer}   params.from         The multichainer to start with. It could be either main chain or sidechain.
+ * @param  {Multichainer}   params.to           The multichainer to start with. It could be either main chain or sidechain.
+ * @param  {String}         params.name         Name of Token on mainchain, to track. Doesn't matter whether the mainchain is set as `from` or `to`
+ * @param  {Function} callback  A function that should be invoked when transfer state was updated
+ * @return {Gateway}        current gateway 
+ */
 Gateway.prototype.onTransfer = function(params, callback) {
+    console.log(`\n\nWarning! Don't forget to update the contract's mapTo function. And get name of contract on sidechain from mapping (Gateway.onTransfer)\n\n`);
+
     if (params.from === this.mainchain && params.to === this.sidechain) {
         let depositManager = this.sidechain.config.mainNetwork.Contracts.DepositManagerProxy;
 
@@ -21,13 +37,16 @@ Gateway.prototype.onTransfer = function(params, callback) {
     }
     else if (params.from === this.sidechain && params.to === this.mainchain) {
         let eventName = `transfer_from_${this.sidechain.name}_${this.sidechain.network}_to_${this.mainchain.name}_${this.mainchain.network}`;
-        console.log('Withdraw token: '+eventName);
+        // console.log('Withdraw token: '+eventName);
 
         let currentState = 0;
         let statesAmount = 3;
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// 1/3. Listening to first state of matic->ethereum transfer should watch on NFT at matic network //
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        
         let lordsNFT = 'lordsNFT';
-
         this.sidechain[lordsNFT].on('Withdraw', {}, function(log){
             currentState = 1;
 
@@ -39,12 +58,30 @@ Gateway.prototype.onTransfer = function(params, callback) {
             callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
         }.bind(this));
 
-        // add matic nft token streamer to Withdraw.
-        // ChildERC721.json Withdraw
-        // from: "0xFAa502EBe96601782A34b1a947B676FB4e9d090c"
-        // token: "0xbb60Fd245E2821bc7a5C6EeC4ef77A9A6bEdFe53"
-        // tokenId: "1"
-        // set the state of token export to 1/3
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// 2/3. Listening to second state of matic->ethereum transfer should watch on Withdraw Manager.  //
+        /// Exit manager adds the burnt token to the queue of exited tokens list                          //
+        ////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        let withdrawManager = 'WithdrawManager';
+        let withdrawManagerAddress = this.sidechain.config.mainNetwork.Contracts.WithdrawManagerProxy;
+        // ABI file of withdtaw manager comes with Matic Configurations
+        const network = new Network(this.sidechain.config.network, this.sidechain.config.version);
+        let withdrawManagerAbi = network.abi(withdrawManager);
+
+        // loading the withdraw manager with address, name and abi
+        this.sidechain.contract.add({name: withdrawManager, address: withdrawManagerAddress, type: this.sidechain.contract.CONTRACT}).fromAbi(withdrawManagerAbi);
+
+        this.sidechain[withdrawManager].on('ExitStarted', { token: this.mainchain[params.name].address }, function(log){
+            currentState = 2;
+
+            let txid = log.transactionHash;
+            let blockNumber = log.blockNumber;
+            let owner = log.returnValues.exitor;
+            let tokenID = parseInt(log.returnValues.amount);
+
+            callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
+        });
 
         // on client:
         // if clicked on export, click set the export.
