@@ -98,7 +98,7 @@ Contract.prototype.on = function(eventName, filter, callback) {
     };
 
     if (this.events[eventName] !== undefined) {
-        throw "${eventName} is listened already";
+        throw `${eventName} is listened already`;
     }
     // this.events[eventName] = filter;
 };
