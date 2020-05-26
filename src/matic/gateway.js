@@ -96,17 +96,21 @@ Gateway.prototype.onTransfer = function(params, callback) {
         // operator: "=="
         // then wait for 1 minute and try again.
 
-        // add a contract of withdraw proxy
-        // listen the WithdrawProxy's ExitStarted event
-        // listen to transfers on ethereum to the ERC721 predicate if was sent a NFT
-        // on predicate, set the state of token export to 2/3
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// 3/3. Listening to third state of matic->ethereum transfer. It still watches Withdraw Manager. However, //
+        /// Withdraw Manager now emits withdraw event                                                              //
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // listen to transfers on ethereum withdraw manager proxy (0x3cf9ad3395028a42eafc949e2ec4588396b8a7d4) for withdraw event
-        // amount: "1"
-        // exitId: "541212018547743864515934151807498599089339105536"
-        // token: "0xbb60Fd245E2821bc7a5C6EeC4ef77A9A6bEdFe53"
-        // user: "0xFAa502EBe96601782A34b1a947B676FB4e9d090c"
-        // filter by "returnValues.token"
+        this.sidechain[withdrawManager].on('Withdraw', { token: this.mainchain[params.name].address }, function(log){
+            currentState = 3;
+
+            let txid = log.transactionHash;
+            let blockNumber = log.blockNumber;
+            let owner = log.returnValues.user;
+            let tokenID = parseInt(log.returnValues.amount);
+
+            callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
+        });
 
         return this;
     }
