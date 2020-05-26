@@ -9,7 +9,11 @@ Gateway.prototype.onTransfer = function(params, callback) {
         let depositManager = this.sidechain.config.mainNetwork.Contracts.DepositManagerProxy;
 
         this.mainchain[params.name].onTransferTo(depositManager, function(log){
-            callback({tokenID: log.tokenID, owner: log.from, blockNumber: log.blockNumber, txid: log.txid});
+            // ethereum -> matic has 1 states that requires player transaction confirmation
+            let currentState = 1;
+            let statesAmount = 1;
+
+            callback({tokenID: log.tokenID, owner: log.from, blockNumber: log.blockNumber, txid: log.txid, currentState: currentState, statesAmount: statesAmount});
         });
 
         // deposit token
