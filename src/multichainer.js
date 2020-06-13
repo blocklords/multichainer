@@ -184,10 +184,34 @@ Multichainer.prototype.to = function (multichainer) {
     else if (multichainer === this.sidechain) {
         console.log(`To ${this.sidechain.name}-${this.sidechain.network}`);
 
-        console.log(this.transferFrom[this.transferName].methods);
+        let contract = this.fromMultichainer[this.transferName];
+        let account = this.fromMultichainer.account;
+        let addressFrom = account.default.address;
+        let addressTo = this.sidechain.config.mainNetwork.Contracts.DepositManagerProxy;
+
+        // console.log(`Transfer token #${this.transferValue} from ${addressFrom} to ${addressTo}`);
+
+        return this.gateway.transferToSidechain({
+            id: this.transferValue,
+            name: this.transferName,
+            account: account 
+        });
+        return;
+
+
+        contract
+        .send()
+        .as(account)
+        .safeTransferFrom(addressFrom, addressTo, this.transferValue)
+        .then(txHash => {
+            console.log(txHash);
+        })
+        .catch(e => {
+            console.error(e);
+        })
     }
 
-    this.transferTo = this.sidechain;
+    this.toMultichainer = this.sidechain;
 
     return this;
 };

@@ -133,4 +133,15 @@ Gateway.prototype.onTransfer = function(params, callback) {
     throw `Unrecognized error`;
 }
 
+Gateway.prototype.transferToSidechain = function (params) {
+    let contract = this.mainchain[params.name];
+    let id = parseInt(params.id);
+
+    this.sidechain.provider.setWallet(params.account.defaultSigningKey.privateKey);
+
+    console.log(contract.address);
+
+    return this.sidechain.provider.matic.safeDepositERC721Tokens(contract.address, id, {from: params.account.default.address.toLocaleLowerCase() });
+}
+
 module.exports = Gateway;
