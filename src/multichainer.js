@@ -84,8 +84,6 @@ var Multichainer = function (blockchain, network) {
 
     this.smartcontract      = result.smartcontract;
 
-    this.gateways           = {};
-
     return this;
 };
 
