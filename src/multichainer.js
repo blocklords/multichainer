@@ -146,6 +146,8 @@ Multichainer.prototype.transfer = function(params) {
         if (this[params.name].type !== this.contract.NFT) {
             throw `The ${params.name} is a '${this.contract.NFT}', but transfer method is missing 'id' parameter`;
         }
+        
+        this.transferName = params.name;
         this.transferType = this.contract.NFT;
         this.transferValue = params.id;
     }
@@ -153,6 +155,7 @@ Multichainer.prototype.transfer = function(params) {
         if (this[params.name].type !== this.contract.TOKEN) {
             throw `The ${params.name} is a '${this.contract.TOKEN}', but transfer method is missing 'amount' parameter`;
         }
+        this.transferName = params.name;
         this.transferType = this.contract.TOKEN;
         this.transferValue = params.amount;
     }
@@ -182,6 +185,8 @@ Multichainer.prototype.to = function (multichainer) {
     }
     else if (multichainer === this.sidechain) {
         console.log(`To ${this.sidechain.name}-${this.sidechain.network}`);
+
+        console.log(this.transferFrom[this.transferName].methods);
     }
 
     this.transferTo = this.sidechain;
