@@ -4,7 +4,7 @@
  */
 
 // Matic Test-v3 network configurations
-let test_v3 = {
+let mumbai = {
 	// Matic Test-v3 could be used as sidechain of ethereum ropsten
 	'ethereum': {
 		// testnet v3 that connected to ropsten is provided by matic.js
@@ -13,8 +13,8 @@ let test_v3 = {
 		'ropsten': {
 		  	// used to set up matic network
 			"network": "testnet",
-			"version": "v3",
-			'daggerEndpoint': 'https://testnetv3-dagger.matic.network',
+			"version": "mumbai",
+			'daggerEndpoint': 'https://mumbai-dagger.matic.today',
 			'NFT_abi': 'ChildERC721',
 			'TOKEN_abi': 'ChildERC20'
 		}
@@ -22,5 +22,5 @@ let test_v3 = {
 }
 
 module.exports = {
-    'test-v3': test_v3
+    'mumbai': mumbai
 };
