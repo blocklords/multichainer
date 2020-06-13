@@ -10,7 +10,7 @@ let mumbai = {
 		// testnet v3 that connected to ropsten is provided by matic.js
 		// at https://static.matic.network/network/testnet/v3/index.json
 		// everything is as is.
-		'ropsten': {
+		'goerli': {
 		  	// used to set up matic network
 			"network": "testnet",
 			"version": "mumbai",
