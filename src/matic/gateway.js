@@ -70,9 +70,9 @@ Gateway.prototype.onTransfer = function(params, callback) {
         let withdrawManagerAbi = network.abi(withdrawManager);
 
         // loading the withdraw manager with address, name and abi
-        this.sidechain.contract.add({name: withdrawManager, address: withdrawManagerAddress, type: this.sidechain.contract.CONTRACT}).fromAbi(withdrawManagerAbi);
+        this.mainchain.contract.add({name: withdrawManager, address: withdrawManagerAddress, type: this.sidechain.contract.CONTRACT}).fromAbi(withdrawManagerAbi);
 
-        this.sidechain[withdrawManager].on('ExitStarted', { token: this.mainchain[params.name].address }, function(log){
+        this.mainchain[withdrawManager].on('ExitStarted', { token: this.mainchain[params.name].address }, function(log){
             currentState = 2;
 
             let txid = log.transactionHash;
@@ -101,7 +101,7 @@ Gateway.prototype.onTransfer = function(params, callback) {
         /// Withdraw Manager now emits withdraw event                                                              //
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        this.sidechain[withdrawManager].on('Withdraw', { token: this.mainchain[params.name].address }, function(log){
+        this.mainchain[withdrawManager].on('Withdraw', { token: this.mainchain[params.name].address }, function(log){
             currentState = 3;
 
             let txid = log.transactionHash;
