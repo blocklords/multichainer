@@ -172,7 +172,7 @@ Multichainer.prototype.from = function(multichainer) {
         console.log(`Deposit from ${this.sidechain.name}-${this.sidechain.network}`);
     }
 
-    this.transferFrom = this;
+    this.fromMultichainer = this;
 
     return this;
 };
