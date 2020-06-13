@@ -66,6 +66,7 @@ Contract.prototype.fromAbiFile = function(path, async = false) {
         throw e;
     }
 
+
     let web3 = Contract.multichainer.provider.get();
     if (web3.version.getNetwork !== undefined) {
         this.abi = web3.eth.contract(data.json.abi).at(this.address);
@@ -76,6 +77,19 @@ Contract.prototype.fromAbiFile = function(path, async = false) {
 
     return this;
 };
+
+Contract.prototype.fromAbi = function(abi, async = false) {
+    let web3 = Contract.multichainer.getProvider();
+    if (web3.version.getNetwork !== undefined) {
+        this.abi = web3.eth.contract(abi).at(this.address);
+    }
+    else {
+        this.abi = new web3.eth.Contract(abi, this.address);
+    }
+    
+    return this;
+};
+
 
 Contract.prototype.setStreamer = function() {
     // Get dagger.js object
