@@ -6,6 +6,84 @@ var Gateway = function(mainchain, sidechain) {
 };
 
 /**
+ * Matic -> Ethereum token exporting 2/3 is the ExitStarted event of Withdraw Manager
+ * @param  {[type]} web3 [description]
+ * @param  {[type]} raw  [description]
+ * @return {[type]}      [description]
+ */
+Gateway.decodeExitStarted = function(web3, raw) {
+    const inputs = [
+            {
+               "indexed":true,
+               "name":"exitor",
+               "type":"address"
+            },
+            {
+               "indexed":true,
+               "name":"exitId",
+               "type":"uint256"
+            },
+            {
+               "indexed":true,
+               "name":"token",
+               "type":"address"
+            },
+            {
+               "indexed":false,
+               "name":"amount",
+               "type":"uint256"
+            },
+            {
+                "indexed":false,
+                "name":"isRegularExit",
+                "type":"bool"
+            }
+    ];
+    const res = web3.eth.abi.decodeLog(inputs, raw.data, raw.topics.slice(1));
+    
+    return res;
+};
+
+
+/**
+ * Matic -> Ethereum token exporting 3/3 is the Transfer event of NFT token
+ * @param  {[type]} web3 [description]
+ * @param  {[type]} raw  [description]
+ * @return {[type]}      [description]
+ */
+Gateway.decodeWithdraw = function(web3, raw) {
+    const inputs = [{
+            "indexed":true,
+            "name":"exitId",
+            "type":"uint256"
+        },
+        {
+            "indexed":true,
+            "name":"user",
+           "type":"address"
+        },
+        {
+            "indexed":true,
+            "name":"token",
+           "type":"address"
+        },
+        {
+            "indexed":false,
+            "name":"amount",
+           "type":"uint256"
+        }
+    ];
+
+    const res = web3.eth.abi.decodeLog(inputs, raw.data, raw.topics.slice(1));
+    
+    return res;
+};
+
+Gateway.exitStartedSign = '0xaa5303fdad123ab5ecaefaf69137bf8632257839546d43a3b3dd148cc2879d6f';
+Gateway.withdrawSign = '0xfeb2000dca3e617cd6f3a8bbb63014bb54a124aac6ccbf73ee7229b4cd01f120';
+
+
+/**
  * Invokes an event on each state of fungible token transfer, non fungible token (NFT) transfer
  * between two mainchain and sidechain. 
  * If `from` is set to mainchain, and `to` set to sidechain, then `onTransfer` will track token import from mainchain to sidechain.
@@ -37,7 +115,6 @@ Gateway.prototype.onTransfer = function(params, callback) {
     }
     else if (params.from === this.sidechain && params.to === this.mainchain) {
         let eventName = `transfer_from_${this.sidechain.name}_${this.sidechain.network}_to_${this.mainchain.name}_${this.mainchain.network}`;
-        // console.log('Withdraw token: '+eventName);
 
         let currentState = 0;
         let statesAmount = 3;
@@ -59,58 +136,44 @@ Gateway.prototype.onTransfer = function(params, callback) {
         }.bind(this));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// 2/3. Listening to second state of matic->ethereum transfer should watch on Withdraw Manager.  //
-        /// Exit manager adds the burnt token to the queue of exited tokens list                          //
-        ////////////////////////////////////////////////////////////////////////////////////////////////////
         
-        let withdrawManager = 'WithdrawManager';
         let withdrawManagerAddress = this.sidechain.config.mainNetwork.Contracts.WithdrawManagerProxy;
-        // ABI file of withdtaw manager comes with Matic Configurations
-        const network = new Network(this.sidechain.config.network, this.sidechain.config.version);
-        let withdrawManagerAbi = network.abi(withdrawManager);
+        streamOn = "latest:log/"+withdrawManagerAddress;
 
-        // loading the withdraw manager with address, name and abi
-        this.mainchain.contract.add({name: withdrawManager, address: withdrawManagerAddress, type: this.sidechain.contract.CONTRACT}).fromAbi(withdrawManagerAbi);
+        this.mainchain.provider.eventStreamer.on(streamOn, function(results) {
+            let result = results[0];
 
-        this.mainchain[withdrawManager].on('ExitStarted', { token: this.mainchain[params.name].address }, function(log){
-            currentState = 2;
+            /////////////////
+            /// 2/3 export //
+            /////////////////
+            if (result.topics[0] == Gateway.exitStartedSign) {
+                let data = Gateway.decodeExitStarted(this.mainchain.getProvider(), result);
 
-            let txid = log.transactionHash;
-            let blockNumber = log.blockNumber;
-            let owner = log.returnValues.exitor;
-            let tokenID = parseInt(log.returnValues.amount);
+                currentState = 2;
 
-            callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
-        });
+                let txid = result.transactionHash;
+                let blockNumber = result.blockNumber;
+                let owner = data.exitor;
+                let tokenID = parseInt(data.amount);
 
-        // on client:
-        // if clicked on export, click set the export.
-        // then after receiving the state one update from server,
-        // click on second state.
-        // if blockchain returns an error saying that withdrawNFT() throws an AssertionError: 
-        // actual: false
-        // expected: true
-        // generatedMessage: false
-        // message: "Burn transaction has not been checkpointed as yet"
-        // name: "AssertionError"
-        // operator: "=="
-        // then wait for 1 minute and try again.
+                callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// 3/3. Listening to third state of matic->ethereum transfer. It still watches Withdraw Manager. However, //
-        /// Withdraw Manager now emits withdraw event                                                              //
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            /////////////////
+            /// 3/3 export //
+            /////////////////
+            } else if (result.topics[0] == Gateway.withdrawSign) {
+                currentState = 3;
+                
+                let data = Gateway.decodeWithdraw(this.mainchain.getProvider(), result);
 
-        this.mainchain[withdrawManager].on('Withdraw', { token: this.mainchain[params.name].address }, function(log){
-            currentState = 3;
+                let txid = result.transactionHash;
+                let blockNumber = result.blockNumber;
+                let owner = data.user;
+                let tokenID = parseInt(data.amount);
 
-            let txid = log.transactionHash;
-            let blockNumber = log.blockNumber;
-            let owner = log.returnValues.user;
-            let tokenID = parseInt(log.returnValues.amount);
-
-            callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
-        });
+                callback({tokenID: tokenID, owner: owner, blockNumber: blockNumber, txid: txid, currentState: currentState, statesAmount: statesAmount});
+            }
+        }.bind(this));
 
         return this;
     }
@@ -138,8 +201,6 @@ Gateway.prototype.transferToSidechain = function (params) {
     let id = parseInt(params.id);
 
     this.sidechain.provider.setWallet(params.account.defaultSigningKey.privateKey);
-
-    console.log(contract.address);
 
     return this.sidechain.provider.matic.safeDepositERC721Tokens(contract.address, id, {from: params.account.default.address.toLocaleLowerCase() });
 }
