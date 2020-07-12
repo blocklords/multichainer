@@ -155,7 +155,7 @@ Multichainer.prototype.transfer = function(params) {
         }
         this.transferName = params.name;
         this.transferType = this.contract.TOKEN;
-        this.transferValue = params.amount;
+        this.transferValue = params.amount * 10e17;
     }
     else {
         throw `Couldn't detect a transferring data. Please set either 'id' param for NFTs or 'amount' param for tokens`;
