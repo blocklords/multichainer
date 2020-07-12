@@ -100,6 +100,51 @@ Contract.prototype.mapTo = function(contract) {
     throw `${Contract.multichainer.name} is a sidechain. Sidechains can not be mapped to another chains. If you want to map this contract, then call the mainchain's mapTo()`;
 };
 
+/*********************************************************************************************************************
+ *  Contract methods
+ * *******************************************************************************************************************
+ */
+Contract.prototype.call = function (params){//ame, parameters) {
+    // let method = this.contract.instance.methods[name];
+
+    let method = new Method(this, params, Method.CALL);
+    return method;
+
+    // TODO change the function to invoke methods directly from the top smartcontract module
+    if (method === undefined) {
+        console.trace("Unsupported method name "+name);
+      process.exit(1);
+    }
+
+    let parameters = arguments.slice(1);
+    if (parameters.length > 0) {
+      return method(...parameters).call({ from: this.account.address.toString() });
+    }
+    return method().call({ from: this.account.address.toString() });
+};
+
+
+// Set some data
+Contract.prototype.send = function (params) {
+    let method = new Method(this, params, Method.SEND);
+    return method;
+
+    let name = arguments[0];
+
+    // let method = this.contract.instance.methods[name];
+
+    // TODO change the function to invoke methods directly from the top smartcontract module
+    if (method === undefined) {
+      console.trace("Unsupported method name "+name);
+      process.exit(1);
+    }
+
+    let parameters = arguments.slice(1);
+    if (parameters.length > 0) {
+      return method(...parameters).send({ from: this.account.address.toString() });
+    }
+    return method().send({ from: this.account.address.toString() });
+};
 
 /////////////////////////////
 // CONTRACT EVENT STREAMER //

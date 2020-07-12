@@ -54,6 +54,12 @@ Provider.prototype.setWallet = async function(privateKey) {
 };
 
 
+Provider.prototype.setSigner = function(account) {
+    this.web3.eth.accounts.wallet.add(account.defaultSigningKey);
+    this.web3.eth.defaultAccount = account.address;
+};
+
+
 Provider.prototype.setEventStreamer = function() {
   let dagger = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
 
