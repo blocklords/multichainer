@@ -2,6 +2,11 @@ const Utils = require('./cryptoutils');
 const Network = require("@maticnetwork/meta/network");
 const fs = require('fs');
 
+const Method = require('./method.js');
+
+const ON_TRANSFER_TO = 'onTransfer_';
+const ON_MINTING = 'onMinting';
+
 var Contract = function(name, address, type) {
     this.name = name;
     this.address = address;
