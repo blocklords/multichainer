@@ -227,7 +227,7 @@ Contract.prototype.onTransferTo = function(address, callback) {
 
     this.events[eventName] = this.contractStreamer.events.Transfer({filter: { to: address }, room: 'latest'});
 
-    this.events[eventName].watch((log) => {
+    this.events[eventName].watchOnce((log) => {
         if (this.type === Contract.NFT) {
             callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, from: log.returnValues.from, to: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
         }

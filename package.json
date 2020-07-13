@@ -1,6 +1,6 @@
 {
   "name": "multichainer",
-  "version": "0.0.3",
+  "version": "2.3.2",
   "description": "Interact with Eth, Loom with the same API",
   "main": "src/index.js",
   "scripts": {
