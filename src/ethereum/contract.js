@@ -271,15 +271,13 @@ Contract.prototype.onTransferTo = function(address, callback) {
 
     this.events[eventName] = this.contractStreamer.events.Transfer({filter: { to: address }, room: 'latest'});
 
-    this.events[eventName].watchOnce(function(log){
+    this.events[eventName].watch(function(log){
         if (this.type === Contract.NFT) {
             callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, from: log.returnValues.from, to: log.returnValues.to, tokenID: parseInt(log.returnValues.tokenId)})
         }
         else if (this.type === Contract.TOKEN) {
             callback({blockNumber: parseInt(log.blockNumber), txid: log.transactionHash, from: log.returnValues.from, to: log.returnValues.to, amount: parseInt(log.returnValues.value)})
         }
-
-        delete this.events[eventName];
     }.bind(this));
 };
 
