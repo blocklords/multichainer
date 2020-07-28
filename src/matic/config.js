@@ -17,10 +17,29 @@ let mumbai = {
 			'daggerEndpoint': 'https://mumbai-dagger.matic.today',
 			'NFT_abi': 'ChildERC721',
 			'TOKEN_abi': 'ChildERC20'
-		}
+		},
 	}
 }
 
+let mainnet = {
+	// Matic Test-v3 could be used as sidechain of ethereum ropsten
+	'ethereum': {
+		// testnet v3 that connected to ropsten is provided by matic.js
+		// at https://static.matic.network/network/testnet/v3/index.json
+		// everything is as is.
+		'mainnet': {
+		  	// used to set up matic network
+			"network": "mainnet",
+			"version": "v1",
+			'daggerEndpoint': 'wss://matic-mainnet.dagger.matic.network',
+			'NFT_abi': 'ChildERC721',
+			'TOKEN_abi': 'ChildERC20'
+		},
+	}
+}
+
+
 module.exports = {
-    'mumbai': mumbai
+    'mumbai': mumbai,
+    'mainnet': mainnet
 };

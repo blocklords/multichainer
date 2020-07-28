@@ -16,7 +16,14 @@ let goerli = {
 }
 
 
+// Mainnet network configurations
+let mainnet = {
+	'endpoint': 'https://mainnet.infura.io/v3/d394db7cebfd490a9c79c81d23849188',
+	'daggerEndpoint': 'wss://mainnet.dagger.matic.network'
+}
+
 module.exports = {
     'ropsten': ropsten,
-    'goerli': goerli
+    'goerli': goerli,
+    'mainnet': mainnet
 };
