@@ -1,6 +1,5 @@
 const Utils = require('./cryptoutils');
 const Multichainer = require('./multichainer.js');
-const { Smartcontract: LoomSmartcontract } = require('./loom/index.js');
 
 var Smartcontract = function(instance, account) {
     if (Multichainer.instance === undefined) {

@@ -22,7 +22,6 @@
     "ethereumjs-abi": "^0.6.8",
     "ethereumjs-util": "^6.2.0",
     "ethers": "^4.0.44",
-    "loom-js": "^1.75.1",
     "tweetnacl": "^1.0.2",
     "web3": "^1.2.8"
   }
