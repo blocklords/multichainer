@@ -101,7 +101,7 @@ Multichainer.prototype.addSidechain = async function (blockchain, network) {
     
     this.sidechain.config = mapping[this.network];
 
-    await this.sidechain.provider.init();
+    await this.sidechain.provider.init(this);
 
     this.gateway = new this.sidechain.Gateway(this, this.sidechain);
 

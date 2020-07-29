@@ -19,7 +19,7 @@ Provider.prototype.get = function() {
 };
 
 
-Provider.prototype.init = async function () {
+Provider.prototype.init = async function (mainchainer) {
     const network = new Network(this.multichainer.config.network, this.multichainer.config.version);
 
     const MaticNetwork = network.Matic;
@@ -30,7 +30,7 @@ Provider.prototype.init = async function () {
     // const from = config.from; // from address
     this.matic = new Matic({
       maticProvider: this.web3,
-      parentProvider: MainNetwork.RPC,
+      parentProvider: mainchainer.config.endpoint,
       rootChain: MainNetwork.Contracts.RootChain,
       withdrawManager: MainNetwork.Contracts.WithdrawManagerProxy,
       depositManager: MainNetwork.Contracts.DepositManagerProxy,
