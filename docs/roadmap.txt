@@ -1,0 +1,21 @@
+
+Multichainer.account 		- data
+
+Multichainer.gateway 		- data transfer between different blockchains
+
+Multichainer.blockchain		- general interaction with blockchain
+
+Multichainer.node 			- node connection
+
+Multichainer.contract 		- interaction with contracts
+
+Multichainer.wallet 		- auto detection of the wallet in the browser
+
+// determines the metamask, tronlink or o3
+mcAccount = MC.Account.fromWallet(MC.Account.AUTO_DETECT);
+
+// set a connection to the node
+mcNode = MC.Node.fromWallet(MC.Node.AUTO_DETECT);
+
+// connect to blockchain
+mcBlockchain = MC.Blockchain(mcNode);
