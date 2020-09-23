@@ -21,6 +21,7 @@ Provider.prototype.setSigner = function(account) {
 };
 
 Provider.prototype.setEventStreamer = function() {
+    console.log("Init Dagger.js...", "Dagger Endpoint", this.multichainer.config.daggerEndpoint);
 	this.eventStreamer = new Dagger(this.multichainer.config.daggerEndpoint); // dagger server
 };
 
